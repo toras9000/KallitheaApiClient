@@ -3,17 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KallitheaApiClient", "src\KallitheaApiClient.csproj", "{9D5F3F72-29CB-44D8-82F1-F58BAF892ABE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KallitheaApiClient", "src\KallitheaApiClient.csproj", "{9D5F3F72-29CB-44D8-82F1-F58BAF892ABE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KallitheaApiClientTest", "tests\KallitheaApiClientTest.csproj", "{D3258F2B-339C-4A56-85C9-B86219021C60}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KallitheaApiClientTest", "tests\KallitheaApiClientTest.csproj", "{D3258F2B-339C-4A56-85C9-B86219021C60}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ソリューション項目", "ソリューション項目", "{3CCFE9E2-6A24-4291-9972-3D1A0EF6F90C}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9D5F3F72-29CB-44D8-82F1-F58BAF892ABE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -24,5 +26,11 @@ Global
 		{D3258F2B-339C-4A56-85C9-B86219021C60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3258F2B-339C-4A56-85C9-B86219021C60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3258F2B-339C-4A56-85C9-B86219021C60}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CB5E3965-0BA4-4935-8CAC-EF3F3D03D613}
 	EndGlobalSection
 EndGlobal
