@@ -6,4 +6,38 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageId>KallitheaApiClient</PackageId>
+    <PackageDescription>.</PackageDescription>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Authors>toras9000</Authors>
+    <Company />
+    <Version>0.0.0</Version>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageProjectUrl>https://github.com/toras9000/KallitheaApiClient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/toras9000/KallitheaApiClient</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EmbedAllSources>true</EmbedAllSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DeterministicSourcePaths>true</DeterministicSourcePaths>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)/../packages</PackageOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <SourceRoot Include="$(MSBuildThisFileDirectory)" />
+  </ItemGroup>
+
 </Project>
