@@ -1,0 +1,15 @@
+version: '2'
+services:
+  app:
+    image: toras9000/kallithea-mp:0.7.0
+    ports:
+      - "9999:5000"
+      - "2222:22"
+    volumes:
+      - ./config:/kallithea/config
+      - ./repos:/kallithea/repos
+    environment:
+      - KALLITHEA_ADMIN_USER=admin
+      - KALLITHEA_ADMIN_PASS=admin123
+      - KALLITHEA_ADMIN_MAIL=admin@example.com
+      - KALLITHEA_LOCALE=ja_JP.UTF-8
