@@ -30,11 +30,12 @@ await client.CreateUserGroupAsync(new("tester"));
 await client.AddUserToUserGroupAsync(new("tester", "foo"));
 
 await client.CreateRepoGroupAsync(new("share"));
-await client.GrantUserGroupPermToRepoGroupAsync(new("share", "tester", "group.admin"));
+await client.GrantUserGroupPermToRepoGroupAsync(new("share", "tester", RepoGroupPerm.admin));
 
 await client.CreateRepoGroupAsync(new("users"));
 await client.CreateRepoGroupAsync(new("foo", parent: "users"));
-await client.GrantUserPermToRepoGroupAsync(new("users/foo", "foo", "group.admin"));
-await client.CreateRepoAsync(new("users/foo/repo1", owner: "foo", repo_type: "git"));
-await client.CreateRepoAsync(new("users/foo/repo2", owner: "foo", repo_type: "hg"));
+await client.GrantUserPermToRepoGroupAsync(new("users/foo", "foo", RepoGroupPerm.admin));
+
+await client.CreateRepoAsync(new("users/foo/repo1", owner: "foo", repo_type: RepoType.git));
+await client.CreateRepoAsync(new("users/foo/repo2", owner: "foo", repo_type: RepoType.hg));
 ```
