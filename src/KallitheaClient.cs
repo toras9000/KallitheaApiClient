@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿#if DEBUG
+using System.Diagnostics;
+#endif
 using System.Net.Http.Json;
 using System.Text.Json;
 
