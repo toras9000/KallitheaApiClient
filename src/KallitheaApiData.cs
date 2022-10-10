@@ -1,4 +1,116 @@
-﻿namespace KallitheaApiClient;
+﻿using System.Text.Json.Serialization;
+using KallitheaApiClient.Converters;
+
+namespace KallitheaApiClient;
+
+/// <summary>リポジトリ種別</summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum RepoType
+{
+    /// <summary>mercurial</summary>
+    hg,
+    /// <summary>git</summary>
+    git,
+}
+
+/// <summary>権限メンバー種別</summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum MemberType
+{
+    /// <summary>ユーザ</summary>
+    user,
+    /// <summary>ユーザグループ</summary>
+    user_group,
+}
+
+/// <summary>リポジトリ権限</summary>
+[JsonConverter(typeof(RepoPermJsonConverter))]
+public enum RepoPerm
+{
+    /// <summary>なし</summary>
+    none,
+    /// <summary>読取権限</summary>
+    read,
+    /// <summary>書込権限</summary>
+    write,
+    /// <summary>管理権限</summary>
+    admin,
+}
+
+/// <summary>リポジトリ権限</summary>
+[JsonConverter(typeof(RepoGroupPermJsonConverter))]
+public enum RepoGroupPerm
+{
+    /// <summary>なし</summary>
+    none,
+    /// <summary>読取権限</summary>
+    read,
+    /// <summary>書込権限</summary>
+    write,
+    /// <summary>管理権限</summary>
+    admin,
+}
+
+/// <summary>取得ノード種別</summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum NodesType
+{
+    /// <summary>すべて</summary>
+    all,
+    /// <summary>ファイル</summary>
+    files,
+    /// <summary>ディレクトリ</summary>
+    dirs,
+}
+
+/// <summary>子要素へのパーミッション適用方法</summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum PermRecurse
+{
+    /// <summary>なし</summary>
+    none,
+    /// <summary>リポジトリ</summary>
+    repos,
+    /// <summary>リポジトリグループ</summary>
+    groups,
+    /// <summary>すべて</summary>
+    all,
+}
+
+/// <summary>Gist の公開種別</summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum GistType
+{
+    /// <summary>公開</summary>
+    @public,
+    /// <summary>非公開</summary>
+    @private,
+}
+
+/// <summary>プルリクエストの状態</summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum PullRequestStatus
+{
+    /// <summary>未レビュー</summary>
+    not_reviewed,
+    /// <summary>レビュー中</summary>
+    under_review,
+    /// <summary>却下</summary>
+    rejected,
+    /// <summary>承認</summary>
+    approved,
+}
+
+/// <summary>アタッチされた(フォークされた)リポジトリの扱い</summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum ForksTreatment
+{
+    /// <summary>デタッチ</summary>
+    detach,
+    /// <summary>削除</summary>
+    delete,
+}
+
 
 /// <summary>IPアドレス情報</summary>
 /// <param name="ip_addr">IPアドレス</param>
@@ -63,9 +175,9 @@ public record Changeset(ChangesetSummary summary, ChangesetFileList? filelist);
 
 /// <summary>リポジトリ権限設定情報</summary>
 /// <param name="name">メンバー名称</param>
-/// <param name="type">メンバー種別('user' or 'user_group')</param>
+/// <param name="type">メンバー種別</param>
 /// <param name="permission">権限</param>
-public record Member(string name, string type, string permission);
+public record Member(string name, MemberType type, string permission);
 
 /// <summary>レビュアー情報</summary>
 /// <param name="username">ユーザ名</param>
@@ -247,13 +359,13 @@ public record GetRepoArgs(string repoid, bool? with_revision_names = null, bool?
 /// <param name="repoid">リポジトリIDまたはリポジトリパス</param>
 /// <param name="revision">対象リビジョン</param>
 /// <param name="root_path">対象の基準パス</param>
-/// <param name="ret_type">取得ノード種別('all' or 'files' or 'dirs')</param>
-public record GetRepoNodesArgs(string repoid, string revision, string root_path, string? ret_type = null);
+/// <param name="ret_type">取得ノード種別</param>
+public record GetRepoNodesArgs(string repoid, string revision, string root_path, NodesType? ret_type = null);
 
 /// <summary>リポジトリ作成要求パラメータ</summary>
 /// <param name="repo_name">リポジトリパス</param>
 /// <param name="owner">所有ユーザIDまたはユーザ名(管理者ユーザのみ指定可能)</param>
-/// <param name="repo_type">リポジトリ種別('hg' or 'git')</param>
+/// <param name="repo_type">リポジトリ種別</param>
 /// <param name="description">説明</param>
 /// <param name="private">非公開リポジトリであるか否か</param>
 /// <param name="clone_uri">クローンURL</param>
@@ -262,7 +374,7 @@ public record GetRepoNodesArgs(string repoid, string revision, string root_path,
 /// <param name="enable_statistics">統計が有効であるか否か</param>
 /// <param name="copy_permissions">親グループからのパーミッションコピーをするか否か</param>
 public record CreateRepoArgs(
-    string repo_name, string? owner = null, string? repo_type = null, string? description = null,
+    string repo_name, string? owner = null, RepoType? repo_type = null, string? description = null,
     bool? @private = null, string? clone_uri = null, string landing_rev = "rev:tip",
     bool? enable_downloads = null, bool? enable_statistics = null, bool? copy_permissions = null
 );
@@ -298,14 +410,14 @@ public record ForkRepoArgs(
 
 /// <summary>リポジトリ削除要求パラメータ</summary>
 /// <param name="repoid">リポジトリIDまたはリポジトリパス</param>
-/// <param name="forks">アタッチされたフォークの扱い ('' or 'detach' or 'delete')</param>
-public record DeleteRepoArgs(string repoid, string? forks = null);
+/// <param name="forks">アタッチされたフォークリポジトリの扱い</param>
+public record DeleteRepoArgs(string repoid, ForksTreatment? forks = null);
 
 /// <summary>リポジトリへのユーザ権限設定要求パラメータ</summary>
 /// <param name="repoid">リポジトリIDまたはリポジトリパス</param>
 /// <param name="userid">ユーザIDまたはユーザ名</param>
-/// <param name="perm">ユーザの権限(repository.(none|read|write|admin))</param>
-public record GrantUserPermToRepoArgs(string repoid, string userid, string perm);
+/// <param name="perm">ユーザのリポジトリ権限</param>
+public record GrantUserPermToRepoArgs(string repoid, string userid, RepoPerm perm);
 
 /// <summary>リポジトリのユーザ権限解除要求パラメータ</summary>
 /// <param name="repoid">リポジトリIDまたはリポジトリパス</param>
@@ -315,8 +427,8 @@ public record RevokeUserPermFromRepoArgs(string repoid, string userid);
 /// <summary>リポジトリへのユーザグループ権限設定要求パラメータ</summary>
 /// <param name="repoid">リポジトリIDまたはリポジトリパス</param>
 /// <param name="usergroupid">ユーザグループIDまたはユーザグループ名</param>
-/// <param name="perm">ユーザの権限(repository.(none|read|write|admin))</param>
-public record GrantUserGroupPermToRepoArgs(string repoid, string usergroupid, string perm);
+/// <param name="perm">ユーザのリポジトリ権限</param>
+public record GrantUserGroupPermToRepoArgs(string repoid, string usergroupid, RepoPerm perm);
 
 /// <summary>リポジトリのユーザグループ権限解除要求パラメータ</summary>
 /// <param name="repoid">リポジトリIDまたはリポジトリパス</param>
@@ -341,28 +453,28 @@ public record UpdateRepoGroupArgs(string repogroupid, string? group_name = null,
 /// <summary>リポジトリグループへのユーザ権限設定要求パラメータ</summary>
 /// <param name="repogroupid">ユーザグループIDまたはユーザグループ名</param>
 /// <param name="userid">ユーザIDまたはユーザ名</param>
-/// <param name="perm">ユーザの権限(repository.(none|read|write|admin))</param>
-/// <param name="apply_to_children">子要素に適用するかどうか ('none' or 'repos' or 'groups' or 'all')</param>
-public record GrantUserPermToRepoGroupArgs(string repogroupid, string userid, string perm, string? apply_to_children = null);
+/// <param name="perm">ユーザのリポジトリグループ権限</param>
+/// <param name="apply_to_children">子要素に適用するかどうか</param>
+public record GrantUserPermToRepoGroupArgs(string repogroupid, string userid, RepoGroupPerm perm, PermRecurse? apply_to_children = null);
 
 /// <summary>リポジトリグループのユーザ権限解除要求パラメータ</summary>
 /// <param name="repogroupid">ユーザグループIDまたはユーザグループ名</param>
 /// <param name="userid">ユーザIDまたはユーザ名</param>
-/// <param name="apply_to_children">子要素に適用するかどうか ('none' or 'repos' or 'groups' or 'all')</param>
-public record RevokeUserPermFromRepoGroupArgs(string repogroupid, string userid, string? apply_to_children = null);
+/// <param name="apply_to_children">子要素に適用するかどうか</param>
+public record RevokeUserPermFromRepoGroupArgs(string repogroupid, string userid, PermRecurse? apply_to_children = null);
 
 /// <summary>リポジトリグループへのユーザグループ権限設定要求パラメータ</summary>
 /// <param name="repogroupid">リポジトリグループIDまたはリポジトリグループパス</param>
 /// <param name="usergroupid">ユーザグループIDまたはユーザグループ名</param>
-/// <param name="perm">ユーザの権限(repository.(none|read|write|admin))</param>
-/// <param name="apply_to_children">子要素に適用するかどうか ('none' or 'repos' or 'groups' or 'all')</param>
-public record GrantUserGroupPermToRepoGroupArgs(string repogroupid, string usergroupid, string perm, string? apply_to_children = null);
+/// <param name="perm">ユーザのリポジトリグループ権限</param>
+/// <param name="apply_to_children">子要素に適用するかどうか</param>
+public record GrantUserGroupPermToRepoGroupArgs(string repogroupid, string usergroupid, RepoGroupPerm perm, PermRecurse? apply_to_children = null);
 
 /// <summary>リポジトリグループのユーザグループ権限解除要求パラメータ</summary>
 /// <param name="repogroupid">リポジトリグループIDまたはリポジトリグループパス</param>
 /// <param name="usergroupid">ユーザグループIDまたはユーザグループ名</param>
-/// <param name="apply_to_children">子要素に適用するかどうか ('none' or 'repos' or 'groups' or 'all')</param>
-public record RevokeUserGroupPermFromToRepoGroupArgs(string repogroupid, string usergroupid, string? apply_to_children = null);
+/// <param name="apply_to_children">子要素に適用するかどうか</param>
+public record RevokeUserGroupPermFromToRepoGroupArgs(string repogroupid, string usergroupid, PermRecurse? apply_to_children = null);
 
 /// <summary>Gist IDを指定する要求パラメータ</summary>
 /// <param name="gistid">Gist ID</param>
@@ -372,9 +484,9 @@ public record GistArgs(string gistid);
 /// <param name="files">Gist内容ファイル</param>
 /// <param name="description">説明</param>
 /// <param name="owner">所有ユーザ</param>
-/// <param name="gist_type">公開種別 ('public' or 'private')</param>
+/// <param name="gist_type">公開種別</param>
 /// <param name="lifetime">有効期限(UnixTime)</param>
-public record CreateGistArgs(Dictionary<string, GistContent> files, string description = "", string gist_type = "public", string? owner = null, decimal? lifetime = null);
+public record CreateGistArgs(Dictionary<string, GistContent> files, string description = "", GistType gist_type = GistType.@public, string? owner = null, decimal? lifetime = null);
 
 /// <summary>リポジトリのチェンジセット一覧取得要求パラメータ</summary>
 /// <param name="repoid">リポジトリIDまたはリポジトリパス</param>
@@ -404,9 +516,9 @@ public record PullRequestArgs(string pullrequest_id);
 /// <summary>プルリクエストへのコメント追加/状態更新要求パラメータ</summary>
 /// <param name="pull_request_id">プルリクエストID</param>
 /// <param name="comment_msg">コメントメッセージ</param>
-/// <param name="status">設定するステータス ('not_reviewed' or 'approved' or 'rejected' or 'under_review')</param>
+/// <param name="status">設定するステータス</param>
 /// <param name="close_pr">プルリクエストを閉じるか否か</param>
-public record CommentPullRequestArgs(string pull_request_id, string comment_msg = "", string? status = null, bool? close_pr = null);
+public record CommentPullRequestArgs(string pull_request_id, string comment_msg = "", PullRequestStatus? status = null, bool? close_pr = null);
 
 /// <summary>プルリクエストのレビュアー更新要求パラメータ</summary>
 /// <param name="pull_request_id">プルリクエストID</param>

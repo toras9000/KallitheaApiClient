@@ -284,7 +284,7 @@ public class KallitheaClientTests
         var repoid = "users/foo/repo3";
         var revision = "HEAD";
         var path = "";
-        var type = "all";
+        var type = NodesType.all;
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         var response = await client.GetRepoNodesAsync(new(repoid, revision, path, type), id: "testid");
         response.id.Should().Be("testid");
@@ -343,7 +343,7 @@ public class KallitheaClientTests
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         await client.CreateRepoAsync(new(repoid));
         await client.ForkRepoAsync(new(repoid, forkrepo));
-        var response = await client.DeleteRepoAsync(new(repoid, "delete"), id: "testid");
+        var response = await client.DeleteRepoAsync(new(repoid, ForksTreatment.delete), id: "testid");
         response.id.Should().Be("testid");
     }
 
@@ -355,7 +355,7 @@ public class KallitheaClientTests
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         await client.CreateRepoAsync(new(repoid));
         await client.ForkRepoAsync(new(repoid, forkrepo));
-        var response = await client.DeleteRepoAsync(new(repoid, "detach"), id: "testid");
+        var response = await client.DeleteRepoAsync(new(repoid, ForksTreatment.detach), id: "testid");
         response.id.Should().Be("testid");
 
         await client.DeleteRepoAsync(new(forkrepo));
@@ -366,7 +366,7 @@ public class KallitheaClientTests
     {
         var repoid = "share/test_repo";
         var user = "bar";
-        var perm = "repository.admin";
+        var perm = RepoPerm.admin;
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         await client.CreateRepoAsync(new(repoid));
         var response = await client.GrantUserPermToRepoAsync(new(repoid, user, perm), id: "testid");
@@ -380,7 +380,7 @@ public class KallitheaClientTests
     {
         var repoid = "share/test_repo";
         var user = "bar";
-        var perm = "repository.admin";
+        var perm = RepoPerm.admin;
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         await client.CreateRepoAsync(new(repoid));
         await client.GrantUserPermToRepoAsync(new(repoid, user, perm));
@@ -395,7 +395,7 @@ public class KallitheaClientTests
     {
         var repoid = "share/test_repo";
         var usergroup = "all";
-        var perm = "repository.admin";
+        var perm = RepoPerm.admin;
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         await client.CreateRepoAsync(new(repoid));
         var response = await client.GrantUserGroupPermToRepoAsync(new(repoid, usergroup, perm), id: "testid");
@@ -409,7 +409,7 @@ public class KallitheaClientTests
     {
         var repoid = "share/test_repo";
         var usergroup = "all";
-        var perm = "repository.admin";
+        var perm = RepoPerm.admin;
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         await client.CreateRepoAsync(new(repoid));
         await client.GrantUserGroupPermToRepoAsync(new(repoid, usergroup, perm));
@@ -481,7 +481,7 @@ public class KallitheaClientTests
         var parent = "share";
         var group = "poe";
         var user = "bar";
-        var perm = "group.admin";
+        var perm = RepoGroupPerm.admin;
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         await client.CreateRepoGroupAsync(new(group, parent: parent));
         var response = await client.GrantUserPermToRepoGroupAsync(new($"{parent}/{group}", user, perm), id: "testid");
@@ -496,7 +496,7 @@ public class KallitheaClientTests
         var parent = "share";
         var group = "poe";
         var user = "bar";
-        var perm = "group.admin";
+        var perm = RepoGroupPerm.admin;
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         await client.CreateRepoGroupAsync(new(group, parent: parent));
         await client.GrantUserPermToRepoGroupAsync(new($"{parent}/{group}", user, perm));
@@ -512,7 +512,7 @@ public class KallitheaClientTests
         var parent = "share";
         var group = "poe";
         var usergroup = "all";
-        var perm = "group.admin";
+        var perm = RepoGroupPerm.admin;
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         await client.CreateRepoGroupAsync(new(group, parent: parent));
         var response = await client.GrantUserGroupPermToRepoGroupAsync(new($"{parent}/{group}", usergroup, perm), id: "testid");
@@ -527,7 +527,7 @@ public class KallitheaClientTests
         var parent = "share";
         var group = "poe";
         var usergroup = "all";
-        var perm = "group.admin";
+        var perm = RepoGroupPerm.admin;
         var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
         await client.CreateRepoGroupAsync(new(group, parent: parent));
         await client.GrantUserGroupPermToRepoGroupAsync(new($"{parent}/{group}", usergroup, perm));
