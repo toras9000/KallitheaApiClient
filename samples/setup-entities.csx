@@ -1,4 +1,4 @@
-#r "nuget: KallitheaApiClient, 0.7.0.1"
+#r "nuget: KallitheaApiClient, 0.7.0.2"
 #r "nuget: Lestaly, 0.9.0"
 
 // This script is meant to run with dotnet-script.
@@ -26,19 +26,19 @@ await Paved.RunAsync(async () =>
     await client.AddUserToUserGroupAsync(new("tester", "bar"));
 
     await client.CreateRepoGroupAsync(new("share"));
-    await client.GrantUserGroupPermToRepoGroupAsync(new("share", "tester", "group.admin"));
+    await client.GrantUserGroupPermToRepoGroupAsync(new("share", "tester", RepoGroupPerm.admin));
 
     await client.CreateRepoGroupAsync(new("users"));
     await client.CreateRepoGroupAsync(new("foo", parent: "users"));
-    await client.GrantUserPermToRepoGroupAsync(new("users/foo", "foo", "group.admin"));
+    await client.GrantUserPermToRepoGroupAsync(new("users/foo", "foo", RepoGroupPerm.admin));
     await client.CreateRepoGroupAsync(new("bar", parent: "users"));
-    await client.GrantUserPermToRepoGroupAsync(new("users/bar", "bar", "group.admin"));
+    await client.GrantUserPermToRepoGroupAsync(new("users/bar", "bar", RepoGroupPerm.admin));
 
-    await client.CreateRepoAsync(new("users/foo/repo1", owner: "foo", repo_type: "git"));
-    await client.CreateRepoAsync(new("users/foo/repo2", owner: "foo", repo_type: "hg"));
+    await client.CreateRepoAsync(new("users/foo/repo1", owner: "foo", repo_type: RepoType.git));
+    await client.CreateRepoAsync(new("users/foo/repo2", owner: "foo", repo_type: RepoType.hg));
 
-    await client.CreateRepoAsync(new("users/bar/repo1", owner: "bar", repo_type: "git"));
-    await client.CreateRepoAsync(new("users/bar/repo2", owner: "bar", repo_type: "hg"));
+    await client.CreateRepoAsync(new("users/bar/repo1", owner: "bar", repo_type: RepoType.git));
+    await client.CreateRepoAsync(new("users/bar/repo2", owner: "bar", repo_type: RepoType.hg));
 
     Console.WriteLine("Setup completed.");
 
