@@ -8,8 +8,9 @@
 
   <PropertyGroup>
     <PackageId>KallitheaApiClient</PackageId>
-    <PackageDescription>.</PackageDescription>
+    <PackageDescription>A client library for the Kallithea API.</PackageDescription>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>kallithea</PackageTags>
   </PropertyGroup>
   <PropertyGroup>
     <Authors>toras9000</Authors>
