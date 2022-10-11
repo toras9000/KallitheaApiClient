@@ -111,11 +111,16 @@ public enum ForksTreatment
     delete,
 }
 
+/// <summary>IPアドレス範囲情報</summary>
+/// <param name="start_ip">開始アドレス</param>
+/// <param name="end_ip">終了アドレス</param>
+[JsonConverter(typeof(IpRangeJsonConverter))]
+public record IpRange(string start_ip, string end_ip);
 
 /// <summary>IPアドレス情報</summary>
 /// <param name="ip_addr">IPアドレス</param>
 /// <param name="ip_range">IPアドレス範囲</param>
-public record IpEntry(string ip_addr, string[] ip_range);
+public record IpAddrInfo(string ip_addr, IpRange ip_range);
 
 /// <summary>ユーザの権限情報</summary>
 /// <param name="global">グローバル権限</param>
@@ -551,7 +556,7 @@ public record InvalidateCacheResult(string msg, string repository);
 /// <summary>ユーザIPホワイトリストとサーバから見たIPの取得要求 応答情報</summary>
 /// <param name="server_ip_addr">サーバからみたIPアドレス</param>
 /// <param name="user_ips">ユーザのIPホワイトリスト</param>
-public record GetIpResult(string server_ip_addr, IpEntry[] user_ips);
+public record GetIpResult(string server_ip_addr, IpAddrInfo[] user_ips);
 
 /// <summary>サーバ情報の取得要求 応答情報</summary>
 /// <param name="modules">モジュール名とバージョンの一覧</param>
