@@ -37,9 +37,23 @@ public enum RepoPerm
     admin,
 }
 
-/// <summary>リポジトリ権限</summary>
+/// <summary>リポジトリグループ権限</summary>
 [JsonConverter(typeof(RepoGroupPermJsonConverter))]
 public enum RepoGroupPerm
+{
+    /// <summary>なし</summary>
+    none,
+    /// <summary>読取権限</summary>
+    read,
+    /// <summary>書込権限</summary>
+    write,
+    /// <summary>管理権限</summary>
+    admin,
+}
+
+/// <summary>ユーザグループ権限</summary>
+[JsonConverter(typeof(UserGroupPermJsonConverter))]
+public enum UserGroupPerm
 {
     /// <summary>なし</summary>
     none,
@@ -111,6 +125,12 @@ public enum ForksTreatment
     delete,
 }
 
+/// <summary>モジュール情報</summary>
+/// <param name="name">モジュール名</param>
+/// <param name="version">モジュールバージョン</param>
+[JsonConverter(typeof(ModuleInfoJsonConverter))]
+public record ModuleInfo(string name, string version);
+
 /// <summary>IPアドレス範囲情報</summary>
 /// <param name="start_ip">開始アドレス</param>
 /// <param name="end_ip">終了アドレス</param>
@@ -127,7 +147,7 @@ public record IpAddrInfo(string ip_addr, IpRange ip_range);
 /// <param name="repositories">リポジトリ権限</param>
 /// <param name="repositories_groups">リポジトリグループ権限</param>
 /// <param name="user_groups">ユーザグループ権限</param>
-public record UserPermissions(string[] global, Dictionary<string, string> repositories, Dictionary<string, string> repositories_groups, Dictionary<string, string> user_groups);
+public record UserPermissions(string[] global, Dictionary<string, RepoPerm> repositories, Dictionary<string, RepoGroupPerm> repositories_groups, Dictionary<string, UserGroupPerm> user_groups);
 
 /// <summary>ユーザ情報</summary>
 /// <param name="user_id">ユーザID</param>
@@ -564,11 +584,11 @@ public record InvalidateCacheResult(string msg, string repository);
 public record GetIpResult(string server_ip_addr, IpAddrInfo[] user_ips);
 
 /// <summary>サーバ情報の取得要求 応答情報</summary>
-/// <param name="modules">モジュール名とバージョンの一覧</param>
+/// <param name="modules">モジュール情報の一覧</param>
 /// <param name="py_version">Python バージョン</param>
 /// <param name="platform">プラットフォーム種別</param>
 /// <param name="kallithea_version">Kallithea バージョン</param>
-public record GetServerInfoResult(string[][] modules, string py_version, string platform, string kallithea_version);
+public record GetServerInfoResult(ModuleInfo[] modules, string py_version, string platform, string kallithea_version);
 
 /// <summary>ユーザ情報の取得要求 応答情報</summary>
 /// <param name="user">ユーザ情報</param>
