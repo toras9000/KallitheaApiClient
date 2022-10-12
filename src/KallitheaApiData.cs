@@ -282,6 +282,11 @@ public record GistInfo(long gist_id, string type, string access_id, string descr
 /// <param name="lexer">書式</param>
 public record GistContent(string content, string lexer);
 
+/// <summary>API呼び出しのログ</summary>
+/// <param name="Request">要求データ</param>
+/// <param name="Status">APIへの応答を得たかどうか</param>
+/// <param name="Response">応答データ</param>
+public record ApiLog(string Request, bool Status, string Response);
 
 
 /// <summary>リポジトリを指定する要求パラメータ</summary>

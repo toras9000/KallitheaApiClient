@@ -35,6 +35,12 @@ public class KallitheaClient : IDisposable
     public string? ApiKey { get; set; }
     #endregion
 
+    // 公開イベント
+    #region ログ
+    /// <summary>API要求ログ</summary>
+    public event Action<ApiLog>? Logging;
+    #endregion
+
     // 公開メソッド
     #region API呼び出し
     /// <summary>リモートからのpullをトリガーする。</summary>
@@ -558,17 +564,15 @@ public class KallitheaClient : IDisposable
             // API要求
             using var response = await this.Client.http.PostAsJsonAsync(this.Client.ApiEntry, input, cancelToken).ConfigureAwait(false);
 
-#if DEBUG
+            // ログイベントのリスナーがいればAPI要求のログを通知
+            var listener = this.Client.Logging;
+            if (listener != null)
             {
-                [Conditional("DEBUG")] static void debugWrite(string caption, string content)
-                {
-                    System.Diagnostics.Debug.WriteLine(caption);
-                    System.Diagnostics.Debug.WriteLine(content);
-                }
-                debugWrite("Request:", JsonSerializer.Serialize(input));
-                debugWrite("Response:", await response.EnsureSuccessStatusCode().Content.ReadAsStringAsync().ConfigureAwait(false));
+                var reqData = JsonSerializer.Serialize(input);
+                var status = response.IsSuccessStatusCode;
+                var rspData = status ? (await response.Content.ReadAsStringAsync().ConfigureAwait(false)) : "";
+                listener(new(reqData, status, rspData));
             }
-#endif
 
             // 要求が成功レスポンスを示すかを確認
             if (!response.IsSuccessStatusCode) throw new UnexpectedResponseException(indentify, response.ReasonPhrase ?? $"HTTP {(int)response.StatusCode}");
