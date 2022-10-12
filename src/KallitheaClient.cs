@@ -430,7 +430,7 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<DeleteGistResult>> DeleteGistAsync(UserArgs args, string? id = null, CancellationToken cancelToken = default)
+    public Task<ApiResponse<DeleteGistResult>> DeleteGistAsync(GistArgs args, string? id = null, CancellationToken cancelToken = default)
         => createContext(id, "delete_gist", args).PostAsync<DeleteGistResult>(cancelToken);
 
     /// <summary>リポジトリのチェンジセット一覧を取得する。</summary>
