@@ -183,7 +183,7 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<AddUserToUserGroupResult>> AddUserToUserGroupAsync(UserWithUserGroup args, string? id = null, CancellationToken cancelToken = default)
+    public Task<ApiResponse<AddUserToUserGroupResult>> AddUserToUserGroupAsync(UserWithUserGroupArgs args, string? id = null, CancellationToken cancelToken = default)
         => createContext(id, "add_user_to_user_group", args).PostAsync<AddUserToUserGroupResult>(cancelToken);
 
     /// <summary>ユーザグループからユーザを削除する。</summary>
@@ -192,7 +192,7 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<DeleteUserToUserGroupResult>> DeleteUserFromUserGroupAsync(UserWithUserGroup args, string? id = null, CancellationToken cancelToken = default)
+    public Task<ApiResponse<DeleteUserToUserGroupResult>> DeleteUserFromUserGroupAsync(UserWithUserGroupArgs args, string? id = null, CancellationToken cancelToken = default)
         => createContext(id, "remove_user_from_user_group", args).PostAsync<DeleteUserToUserGroupResult>(cancelToken);
 
     /// <summary>リポジトリの情報を取得する。</summary>

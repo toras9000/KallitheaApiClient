@@ -303,7 +303,7 @@ public record UserGroupArgs(string usergroupid);
 /// <summary>ユーザグループとユーザの組み合わせを示す要求パラメータ</summary>
 /// <param name="usergroupid">ユーザグループIDまたはユーザグループ名</param>
 /// <param name="userid">ユーザIDまたはユーザ名</param>
-public record UserWithUserGroup(string usergroupid, string userid);
+public record UserWithUserGroupArgs(string usergroupid, string userid);
 
 /// <summary>リポジトリの再スキャン要求パラメータ</summary>
 /// <param name="remove_obsolete">見つからないリポジトリをデータベースから削除するか否か</param>
