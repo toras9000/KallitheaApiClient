@@ -477,8 +477,7 @@ public record CreateRepoGroupArgs(string group_name, string? description = null,
 /// <param name="repogroupid">リポジトリグループIDまたはリポジトリグループパス</param>
 /// <param name="group_name">新しいリポジトリグループ名称</param>
 /// <param name="description">説明</param>
-/// <param name="owner">所有ユーザ</param>
-public record UpdateRepoGroupArgs(string repogroupid, string? group_name = null, string? description = null, string? owner = null);
+public record UpdateRepoGroupArgs(string repogroupid, string? group_name = null, string? description = null);
 
 /// <summary>リポジトリグループへのユーザ権限設定要求パラメータ</summary>
 /// <param name="repogroupid">ユーザグループIDまたはユーザグループ名</param>
