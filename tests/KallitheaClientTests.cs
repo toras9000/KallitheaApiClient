@@ -9,7 +9,7 @@ namespace KallitheaApiClient.Tests;
 public class KallitheaClientTests
 {
     public Uri ApiEntry { get; } = new Uri(@"http://localhost:9999/_admin/api");
-    public string ApiKey { get; } = "086c66326616d606874f3a726ce98aa9928bbc82";
+    public string ApiKey { get; } = "1111222233334444555566667777888899990000";
     public HttpClient Client { get; } = new HttpClient();
 
 
