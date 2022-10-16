@@ -91,24 +91,24 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetUserResult>> GetUserAsync(UserArgs? args = null, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_user", args).PostAsync<JsonElement>(cancelToken)
-            .ContinueWith(t =>
-            {
-                var rsp = t.Result;
-                var user = rsp.result.Deserialize<UserInfo>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetUserResult)}.{nameof(GetUserResult.user)}");
-                var perm = rsp.result.GetProperty(nameof(GetUserResult.permissions)).Deserialize<UserPermissions>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetUserResult)}.{nameof(GetUserResult.permissions)}");
-                return new ApiResponse<GetUserResult>(rsp.id, new(user, perm));
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetUserResult>> GetUserAsync(UserArgs? args = null, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_user", args).PostAsync<JsonElement>(cancelToken).ConfigureAwait(false);
+        var user = rsp.result.Deserialize<UserInfo>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetUserResult)}.{nameof(GetUserResult.user)}");
+        var perm = rsp.result.GetProperty(nameof(GetUserResult.permissions)).Deserialize<UserPermissions>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetUserResult)}.{nameof(GetUserResult.permissions)}");
+        return new ApiResponse<GetUserResult>(rsp.id, new(user, perm));
+    }
 
     /// <summary>ユーザの一覧を取得する</summary>
     /// <remarks>管理者ユーザのキーでのみ実行可能。</remarks>
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetUsersResult>> GetUsersAsync(string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_users", default(object)).PostAsync<UserInfo[]>(cancelToken)
-            .ContinueWith(t => new ApiResponse<GetUsersResult>(t.Result.id, new(t.Result.result)), TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetUsersResult>> GetUsersAsync(string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_users", default(object)).PostAsync<UserInfo[]>(cancelToken).ConfigureAwait(false);
+        return new ApiResponse<GetUsersResult>(rsp.id, new(rsp.result));
+    }
 
     /// <summary>ユーザを作成する。</summary>
     /// <remarks>管理者ユーザのキーでのみ実行可能。</remarks>
@@ -143,18 +143,22 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetUserGroupResult>> GetUserGroupAsync(UserGroupArgs args, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_user_group", args).PostAsync<UserGroupInfo>(cancelToken)
-            .ContinueWith(t => new ApiResponse<GetUserGroupResult>(t.Result.id, new(t.Result.result)), TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetUserGroupResult>> GetUserGroupAsync(UserGroupArgs args, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_user_group", args).PostAsync<UserGroupInfo>(cancelToken).ConfigureAwait(false);
+        return new ApiResponse<GetUserGroupResult>(rsp.id, new(rsp.result));
+    }
 
     /// <summary>ユーザグループ一覧を取得する。</summary>
     /// <remarks>ユーザグループに対する読み取り以上の権限を持つキーで実行可能。</remarks>
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetUserGroupsResult>> GetUserGroupsAsync(string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_user_groups", default(object)).PostAsync<UserGroupInfo[]>(cancelToken)
-            .ContinueWith(t => new ApiResponse<GetUserGroupsResult>(t.Result.id, new(t.Result.result)), TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetUserGroupsResult>> GetUserGroupsAsync(string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_user_groups", default(object)).PostAsync<UserGroupInfo[]>(cancelToken).ConfigureAwait(false);
+        return new ApiResponse<GetUserGroupsResult>(rsp.id, new(rsp.result));
+    }
 
     /// <summary>ユーザグループを作成する。</summary>
     /// <remarks>ユーザグループの作成権限を持つキーで実行可能。</remarks>
@@ -207,27 +211,27 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetRepoResult>> GetRepoAsync(GetRepoArgs args, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_repo", args).PostAsync<JsonElement>(cancelToken)
-            .ContinueWith(t =>
-            {
-                var rsp = t.Result;
-                var repo = rsp.result.Deserialize<RepoInfo>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.repo)}");
-                var members = rsp.result.GetProperty(nameof(GetRepoResult.members)).Deserialize<Member[]>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.members)}");
-                var followers = rsp.result.GetProperty(nameof(GetRepoResult.followers)).Deserialize<UserInfo[]>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.followers)}");
-                var revs = rsp.result.Deserialize<NamedRevs>();
-                var pull_req = rsp.result.TryGetProperty(nameof(GetRepoResult.pull_requests), out var prop_preq) ? prop_preq.Deserialize<PullRequest[]>() : null;
-                return new ApiResponse<GetRepoResult>(rsp.id, new(repo, members, followers, revs, pull_req));
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetRepoResult>> GetRepoAsync(GetRepoArgs args, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_repo", args).PostAsync<JsonElement>(cancelToken).ConfigureAwait(false);
+        var repo = rsp.result.Deserialize<RepoInfo>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.repo)}");
+        var members = rsp.result.GetProperty(nameof(GetRepoResult.members)).Deserialize<Member[]>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.members)}");
+        var followers = rsp.result.GetProperty(nameof(GetRepoResult.followers)).Deserialize<UserInfo[]>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.followers)}");
+        var revs = rsp.result.Deserialize<NamedRevs>();
+        var pull_req = rsp.result.TryGetProperty(nameof(GetRepoResult.pull_requests), out var prop_preq) ? prop_preq.Deserialize<PullRequest[]>() : null;
+        return new ApiResponse<GetRepoResult>(rsp.id, new(repo, members, followers, revs, pull_req));
+    }
 
     /// <summary>リポジトリの一覧を取得する。</summary>
     /// <remarks>リポジトリの読み取り権限を持つキーで実行可能。</remarks>
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetReposResult>> GetReposAsync(string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_repos", default(object)).PostAsync<RepoInfo[]>(cancelToken)
-            .ContinueWith(t => new ApiResponse<GetReposResult>(t.Result.id, new(t.Result.result)), TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetReposResult>> GetReposAsync(string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_repos", default(object)).PostAsync<RepoInfo[]>(cancelToken).ConfigureAwait(false);
+        return new ApiResponse<GetReposResult>(rsp.id, new(rsp.result));
+    }
 
     /// <summary>リポジトリのリビジョンに含まれるノード情報を取得する。</summary>
     /// <remarks>リポジトリの読み取り権限を持つキーで実行可能。</remarks>
@@ -235,9 +239,11 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetRepoNodesResult>> GetRepoNodesAsync(GetRepoNodesArgs args, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_repo_nodes", args).PostAsync<RepoNode[]>(cancelToken)
-            .ContinueWith(t => new ApiResponse<GetRepoNodesResult>(t.Result.id, new(t.Result.result)), TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetRepoNodesResult>> GetRepoNodesAsync(GetRepoNodesArgs args, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_repo_nodes", args).PostAsync<RepoNode[]>(cancelToken).ConfigureAwait(false);
+        return new ApiResponse<GetRepoNodesResult>(rsp.id, new(rsp.result));
+    }
 
     /// <summary>リポジトリを作成する。</summary>
     /// <remarks>リポジトリの作成権限を持つキーで実行可能。</remarks>
@@ -317,24 +323,24 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetRepoGroupResult>> GetRepoGroupAsync(RepoGroupArgs args, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_repo_group", args).PostAsync<JsonElement>(cancelToken)
-            .ContinueWith(t =>
-            {
-                var rsp = t.Result;
-                var repogroup = rsp.result.Deserialize<RepoGroupInfo>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoGroupResult)}.{nameof(GetRepoGroupResult.repogroup)}");
-                var members = rsp.result.GetProperty(nameof(GetRepoGroupResult.members)).Deserialize<Member[]>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoGroupResult)}.{nameof(GetRepoGroupResult.members)}");
-                return new ApiResponse<GetRepoGroupResult>(rsp.id, new(repogroup, members));
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetRepoGroupResult>> GetRepoGroupAsync(RepoGroupArgs args, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_repo_group", args).PostAsync<JsonElement>(cancelToken).ConfigureAwait(false);
+        var repogroup = rsp.result.Deserialize<RepoGroupInfo>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoGroupResult)}.{nameof(GetRepoGroupResult.repogroup)}");
+        var members = rsp.result.GetProperty(nameof(GetRepoGroupResult.members)).Deserialize<Member[]>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoGroupResult)}.{nameof(GetRepoGroupResult.members)}");
+        return new ApiResponse<GetRepoGroupResult>(rsp.id, new(repogroup, members));
+    }
 
     /// <summary>リポジトリグループの一覧を取得する。</summary>
     /// <remarks>管理者ユーザのキーでのみ実行可能。</remarks>
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetRepoGroupsResult>> GetRepoGroupsAsync(string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_repo_groups", default(object)).PostAsync<RepoGroupInfo[]>(cancelToken)
-            .ContinueWith(t => new ApiResponse<GetRepoGroupsResult>(t.Result.id, new(t.Result.result)), TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetRepoGroupsResult>> GetRepoGroupsAsync(string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_repo_groups", default(object)).PostAsync<RepoGroupInfo[]>(cancelToken).ConfigureAwait(false);
+        return new ApiResponse<GetRepoGroupsResult>(rsp.id, new(rsp.result));
+    }
 
     /// <summary>リポジトリグループを作成する。</summary>
     /// <remarks>管理者ユーザのキーでのみ実行可能。</remarks>
@@ -404,18 +410,22 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetGistResult>> GetGistAsync(GistArgs args, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_gist", args).PostAsync<GistInfo>(cancelToken)
-            .ContinueWith(t => new ApiResponse<GetGistResult>(t.Result.id, new(t.Result.result)), TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetGistResult>> GetGistAsync(GistArgs args, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_gist", args).PostAsync<GistInfo>(cancelToken).ConfigureAwait(false);
+        return new ApiResponse<GetGistResult>(rsp.id, new(rsp.result));
+    }
 
     /// <summary>Gist一覧を取得する。</summary>
     /// <param name="args">要求パラメータ</param>
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetGistsResult>> GetGistsAsync(UserArgs? args = null, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_gists", args).PostAsync<GistInfo[]>(cancelToken)
-            .ContinueWith(t => new ApiResponse<GetGistsResult>(t.Result.id, new(t.Result.result)), TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetGistsResult>> GetGistsAsync(UserArgs? args = null, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_gists", args).PostAsync<GistInfo[]>(cancelToken).ConfigureAwait(false);
+        return new ApiResponse<GetGistsResult>(rsp.id, new(rsp.result));
+    }
 
     /// <summary>Gistを作成する。</summary>
     /// <param name="args">要求パラメータ</param>
@@ -439,25 +449,23 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetChangesetsResult>> GetChangesetsAsync(GetChangesetsArgs args, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_changesets", args).PostAsync<JsonElement[]>(cancelToken)
-            .ContinueWith(t =>
+    public async Task<ApiResponse<GetChangesetsResult>> GetChangesetsAsync(GetChangesetsArgs args, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_changesets", args).PostAsync<JsonElement[]>(cancelToken).ConfigureAwait(false);
+        var changesets = rsp.result
+            .Select(e =>
             {
-                var rspId = t.Result.id;
-                var changesets = t.Result.result
-                    .Select(e =>
-                    {
-                        var summary = e.Deserialize<ChangesetSummary>() ?? throw new UnexpectedResultException(rspId, $"{nameof(Changeset)}");
-                        var filelist = default(ChangesetFileList);
-                        if (args.with_file_list == true)
-                        {
-                            filelist = e.Deserialize<ChangesetFileList>() ?? throw new UnexpectedResultException(rspId, $"{nameof(ChangesetFileList)}");
-                        }
-                        return new Changeset(summary, filelist);
-                    })
-                    .ToArray();
-                return new ApiResponse<GetChangesetsResult>(rspId, new(changesets));
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                var summary = e.Deserialize<ChangesetSummary>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(Changeset)}");
+                var filelist = default(ChangesetFileList);
+                if (args.with_file_list == true)
+                {
+                    filelist = e.Deserialize<ChangesetFileList>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(ChangesetFileList)}");
+                }
+                return new Changeset(summary, filelist);
+            })
+            .ToArray();
+        return new ApiResponse<GetChangesetsResult>(rsp.id, new(changesets));
+    }
 
     /// <summary>リポジトリのチェンジセット情報を取得する</summary>
     /// <remarks>リポジトリの読み取り権限を持つキーで実行可能。</remarks>
@@ -465,15 +473,13 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetChangesetResult>> GetChangesetAsync(GetChangesetArgs args, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_changeset", args).PostAsync<JsonElement>(cancelToken)
-            .ContinueWith(t =>
-            {
-                var rspId = t.Result.id;
-                var summary = t.Result.result.Deserialize<ChangesetSummary2>() ?? throw new UnexpectedResultException(rspId, $"{nameof(ChangesetSummary2)}");
-                var filelist = t.Result.result.Deserialize<ChangesetFileList>() ?? throw new UnexpectedResultException(rspId, $"{nameof(ChangesetFileList)}");
-                return new ApiResponse<GetChangesetResult>(rspId, new(summary, filelist));
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetChangesetResult>> GetChangesetAsync(GetChangesetArgs args, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_changeset", args).PostAsync<JsonElement>(cancelToken).ConfigureAwait(false);
+        var summary = rsp.result.Deserialize<ChangesetSummary2>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(ChangesetSummary2)}");
+        var filelist = rsp.result.Deserialize<ChangesetFileList>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(ChangesetFileList)}");
+        return new ApiResponse<GetChangesetResult>(rsp.id, new(summary, filelist));
+    }
 
     /// <summary>プルリクエスト情報を取得する</summary>
     /// <remarks>プルリクエスト元リポジトリの読み取り権限を持つキーで実行可能。</remarks>
@@ -481,9 +487,11 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<GetPullRequestResult>> GetPullRequestAsync(PullRequestArgs args, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "get_pullrequest", args).PostAsync<PullRequest>(cancelToken)
-            .ContinueWith(t => new ApiResponse<GetPullRequestResult>(t.Result.id, new(t.Result.result)), TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<GetPullRequestResult>> GetPullRequestAsync(PullRequestArgs args, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "get_pullrequest", args).PostAsync<PullRequest>(cancelToken).ConfigureAwait(false);
+        return new ApiResponse<GetPullRequestResult>(rsp.id, new(rsp.result));
+    }
 
     /// <summary>プルリクエストにコメント追加/状態更新する</summary>
     /// <remarks>プルリクエスト元リポジトリの読み取り権限とレビュア権限を持つキーで実行可能。</remarks>
@@ -491,9 +499,11 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<CommentPullRequestResult>> CommentPullRequestAsync(CommentPullRequestArgs args, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "comment_pullrequest", args).PostAsync<bool>(cancelToken)
-            .ContinueWith(t => new ApiResponse<CommentPullRequestResult>(t.Result.id, new(t.Result.result)), TaskContinuationOptions.OnlyOnRanToCompletion);
+    public async Task<ApiResponse<CommentPullRequestResult>> CommentPullRequestAsync(CommentPullRequestArgs args, string? id = null, CancellationToken cancelToken = default)
+    {
+        var rsp = await createContext(id, "comment_pullrequest", args).PostAsync<bool>(cancelToken).ConfigureAwait(false);
+        return new ApiResponse<CommentPullRequestResult>(rsp.id, new(rsp.result));
+    }
 
     /// <summary>プルリクエストのレビュアを更新する</summary>
     /// <remarks>プルリクエスト元リポジトリの管理権限を持つキーで実行可能。</remarks>
