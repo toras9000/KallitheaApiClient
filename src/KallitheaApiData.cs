@@ -529,7 +529,7 @@ public record CreateGistArgs(Dictionary<string, GistContent> files, string descr
 /// <param name="max_revisions">最大取得リビジョン数</param>
 public record GetChangesetsArgs(
     string repoid, string? start = null, string? end = null, string? start_date = null, string? end_date = null,
-    string? branch_name = null, bool? reverse = null, bool? with_file_list = null, bool? max_revisions = null
+    string? branch_name = null, bool? reverse = null, bool? with_file_list = null, string? max_revisions = null
  );
 
 /// <summary>リポジトリのチェンジセット情報取得要求パラメータ</summary>
