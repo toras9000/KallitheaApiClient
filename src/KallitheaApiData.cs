@@ -295,7 +295,7 @@ public record RepoGroupInfo(long group_id, string group_name, string group_descr
 /// <param name="url">GistのURL</param>
 /// <param name="expires">有効期間(UnixTime)</param>
 /// <param name="created_on">作成日時</param>
-public record GistInfo(long gist_id, string type, string access_id, string description, string url, decimal expires, string created_on);
+public record GistInfo(long gist_id, string type, string access_id, string description, string url, double expires, string created_on);
 
 /// <summary>Gistコンテンツ</summary>
 /// <param name="content">内容</param>
@@ -515,8 +515,8 @@ public record GistArgs(string gistid);
 /// <param name="description">説明</param>
 /// <param name="owner">所有ユーザ</param>
 /// <param name="gist_type">公開種別</param>
-/// <param name="lifetime">有効期限(UnixTime)</param>
-public record CreateGistArgs(Dictionary<string, GistContent> files, string description = "", GistType gist_type = GistType.@public, string? owner = null, decimal? lifetime = null);
+/// <param name="lifetime">有効期間。登録時点からの有効時間 [minutes]</param>
+public record CreateGistArgs(Dictionary<string, GistContent> files, string description = "", GistType gist_type = GistType.@public, string? owner = null, int? lifetime = null);
 
 /// <summary>リポジトリのチェンジセット一覧取得要求パラメータ</summary>
 /// <param name="repoid">リポジトリIDまたはリポジトリパス</param>
