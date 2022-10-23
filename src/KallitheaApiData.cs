@@ -400,13 +400,10 @@ public record GetRepoNodesArgs(string repoid, string revision, string root_path,
 /// <param name="private">非公開リポジトリであるか否か</param>
 /// <param name="clone_uri">クローンURL</param>
 /// <param name="landing_rev">ランディングリビジョン(rev_type:rev)</param>
-/// <param name="enable_downloads">ダウンロードが有効であるか否か</param>
-/// <param name="enable_statistics">統計が有効であるか否か</param>
 /// <param name="copy_permissions">親グループからのパーミッションコピーをするか否か</param>
 public record CreateRepoArgs(
     string repo_name, string? owner = null, RepoType? repo_type = null, string? description = null,
-    bool? @private = null, string? clone_uri = null, string landing_rev = "rev:tip",
-    bool? enable_downloads = null, bool? enable_statistics = null, bool? copy_permissions = null
+    bool? @private = null, string? clone_uri = null, string landing_rev = "rev:tip", bool? copy_permissions = null
 );
 
 /// <summary>リポジトリ更新要求パラメータ</summary>
