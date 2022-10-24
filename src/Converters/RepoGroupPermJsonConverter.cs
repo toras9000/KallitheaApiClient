@@ -8,6 +8,12 @@ namespace KallitheaApiClient.Converters;
 /// </summary>
 public class RepoGroupPermJsonConverter : JsonConverter<RepoGroupPerm>
 {
+    // 公開フィールド
+    #region 定数
+    /// <summary>JSON表現のプレフィックス</summary>
+    public const string PermPrefix = "group.";
+    #endregion
+
     // 公開メソッド
     #region 変換処理
     /// <summary>文字列を RepoGroupPerm 値に解釈する</summary>
@@ -43,11 +49,5 @@ public class RepoGroupPermJsonConverter : JsonConverter<RepoGroupPerm>
     {
         writer.WriteStringValue($"{PermPrefix}{value}");
     }
-    #endregion
-
-    // 非公開フィールド
-    #region 定数
-    /// <summary>JSON表現のプレフィックス</summary>
-    private const string PermPrefix = "group.";
     #endregion
 }
