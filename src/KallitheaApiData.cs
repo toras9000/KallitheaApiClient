@@ -349,7 +349,7 @@ public record PullArgs(string repoid, string? clone_uri = null);
 /// <param name="admin">ユーザが管理者であるか否か</param>
 /// <param name="extern_type">認証メソッド名</param>
 /// <param name="extern_name">外部認証名</param>
-public record CreateUserArgs(string username, string email, string firstname, string lastname, string? password = null, bool? active = null, bool? admin = null, string? extern_type = null, string? extern_name = null);
+public record CreateUserArgs(string username, string email, string firstname, string lastname, string? password = null, bool? active = null, bool? admin = null, string? extern_type = "internal", string? extern_name = null);
 
 /// <summary>ユーザ情報更新要求パラメータ</summary>
 /// <param name="userid">ユーザID</param>
