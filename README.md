@@ -8,21 +8,23 @@
 This is [Kallithea](https://kallithea-scm.org/) API client library for .NET.  
 Kallithea is a self-hosted repository hosting WEB application.  
 
-It's a relatively simple mapper to the API's JSON interface, so it should be easy to match with the Kallithea API documentation.  
+It's a relatively simple mapper to the API's JSON interface, so it should be easy to match with the Kallithea [API documentation](https://kallithea.readthedocs.io/en/latest/api/api.html).  
 Sorry, IntelliSense messages (documentation comments) for types and members are provided in Japanese. This is because I currently think that the main users are me and the people around me.  
 
 The first three parts of the package version represent the target version of Kallithea.  
 Be aware that if the versions do not match, the API specifications may not match.  
 
 The fourth revision value shows the version value of this library.  
-Therefore, unlike general library versioning, the difference in revision values is not necessarily a trivial change.
+Therefore, unlike general library versioning, the difference in revision values is not necessarily a trivial change.  
+
 
 Example:
 ```csharp
-using var client = new KallitheaClient(new("http://<your-hosting-server>/_admin/api"));
-client.ApiKey = "<your-api-key>";
+var apiUrl = new Uri("http://<your-hosting-server>/_admin/api");
+var apiKey = "<your-api-key>";
+using var client = new KallitheaClient(apiUrl, apiKey);
 
-await client.CreateUserAsync(new("foo", "foo@example.com", "foo", "foo", "foo123"));
+await client.CreateUserAsync(new("foo", "foo@example.com", "family", "given", password: "foo123"));
 
 await client.CreateUserGroupAsync(new("all"));
 await client.AddUserToUserGroupAsync(new("all", "admin"));
