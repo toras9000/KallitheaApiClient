@@ -2,7 +2,7 @@
 #r "nuget: Dapper, 2.0.123"
 #r "nuget: LibGit2Sharp, 0.26.2"
 #r "nuget: AngleSharp, 0.17.1"
-#r "nuget: KallitheaApiClient, 0.7.0.7"
+#r "nuget: KallitheaApiClient, 0.7.0.8"
 #r "nuget: Lestaly, 0.13.0"
 
 // This script is meant to run with dotnet-script.
