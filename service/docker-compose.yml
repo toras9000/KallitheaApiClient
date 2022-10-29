@@ -1,7 +1,8 @@
-version: '2'
+version: '3.5'
 services:
   app:
     image: toras9000/kallithea-mp:0.7.0
+    command: dumb-init bash /kallithea/assets/patched_startup.sh
     restart: unless-stopped
     ports:
       - "9999:5000"
@@ -9,7 +10,9 @@ services:
     volumes:
       - ./config:/kallithea/config
       - ./repos:/kallithea/repos
+      - ./assets:/kallithea/assets
     environment:
+      - TZ=Asia/Tokyo
       - KALLITHEA_ADMIN_USER=admin
       - KALLITHEA_ADMIN_PASS=admin123
       - KALLITHEA_ADMIN_MAIL=admin@example.com
