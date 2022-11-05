@@ -1,4 +1,4 @@
-#r "nuget: KallitheaApiClient, 0.7.0.8"
+#r "nuget: KallitheaApiClient, 0.7.0.9"
 #r "nuget: Lestaly, 0.13.0"
 
 // This script is meant to run with dotnet-script.
@@ -7,6 +7,7 @@
 
 using System.Text.RegularExpressions;
 using KallitheaApiClient;
+using KallitheaApiClient.Utils;
 using Lestaly;
 
 // Create a repository group along with adding users to create a simple dedicated area.
@@ -23,30 +24,31 @@ await Paved.RunAsync((Func<ValueTask>)(async () =>
         .ToArray();
 
     // Initialize the kallithea client. (Requires admin)
-    using var client = new KallitheaClient(new("http://localhost:9999/_admin/api"));
-    client.ApiKey = "1111222233334444555566667777888899990000";
+    var url = new Uri("http://localhost:9999/_admin/api");
+    var key = "1111222233334444555566667777888899990000";
+    using var client = new ShuckedKallitheaClient(url, key);
 
     // If not, create a parent group for the group for the user.
     var baseRepoGrpName = "users";
-    var baseRepoGrpGroup = await Try.Func(async () => (await client.GetRepoGroupAsync(new(baseRepoGrpName))).result.repogroup, _ => null);
+    var baseRepoGrpGroup = await Try.Func(() => client.GetRepoGroupInfoAsync(new(baseRepoGrpName)), _ => null);
     if (baseRepoGrpGroup == null)
     {
-        baseRepoGrpGroup = (await client.CreateRepoGroupAsync(new(baseRepoGrpName))).result.repo_group;
+        baseRepoGrpGroup = await client.CreateRepoGroupAsync(new(baseRepoGrpName));
     }
 
     // Create listed users.
-    foreach (var user in targets)
+    foreach (var target in targets)
     {
-        Console.WriteLine($"User: {user.LoginID}");
+        Console.WriteLine($"User: {target.LoginID}");
         try
         {
             // Create user.
-            await client.CreateUserAsync(new(user.LoginID, user.Mail, user.FirstName, user.LastName, user.Password));
+            var user = await client.CreateUserAsync(new(target.LoginID, target.Mail, target.FirstName, target.LastName, target.Password));
             Console.WriteLine($"  User created.");
 
             // Create repository groups for user. User is the owner.
-            var userRepoGrpName = $"{baseRepoGrpName}/{user.LoginID}";
-            await client.CreateRepoGroupAsync(new(user.LoginID, parent: baseRepoGrpName, owner: user.LoginID));
+            var userRepoGrpName = $"{baseRepoGrpName}/{target.LoginID}";
+            var userRepoGrp = await client.CreateRepoGroupAsync(new(target.LoginID, parent: baseRepoGrpName, owner: target.LoginID));
             Console.WriteLine($"  Repo group created. '{userRepoGrpName}'");
         }
         catch (Exception ex)

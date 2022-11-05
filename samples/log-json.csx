@@ -1,4 +1,4 @@
-#r "nuget: KallitheaApiClient, 0.7.0.8"
+#r "nuget: KallitheaApiClient, 0.7.0.9"
 #r "nuget: Lestaly, 0.13.0"
 
 // This script is meant to run with dotnet-script.
@@ -11,8 +11,9 @@ using Lestaly;
 await Paved.RunAsync(async () =>
 {
     // Initialize the client
-    using var client = new KallitheaClient(new("http://localhost:9999/_admin/api"));
-    client.ApiKey = "1111222233334444555566667777888899990000";
+    var url = new Uri("http://localhost:9999/_admin/api");
+    var key = "1111222233334444555566667777888899990000";
+    using var client = new KallitheaClient(url, key);
 
     // Handle API log events and record them in the log file.
     using var logWriter = ThisSource.GetRelativeFile("api_log.txt").CreateTextWriter();

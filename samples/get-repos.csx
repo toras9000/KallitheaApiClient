@@ -1,4 +1,4 @@
-#r "nuget: KallitheaApiClient, 0.7.0.8"
+#r "nuget: KallitheaApiClient, 0.7.0.9"
 #r "nuget: Lestaly, 0.13.0"
 
 // This script is meant to run with dotnet-script.
@@ -6,17 +6,19 @@
 // $ dotnet tool install -g dotnet-script
 
 using KallitheaApiClient;
+using KallitheaApiClient.Utils;
 using Lestaly;
 
 await Paved.RunAsync(async () =>
 {
     // Initialize the client
-    using var client = new KallitheaClient(new("http://localhost:9999/_admin/api"));
-    client.ApiKey = "1111222233334444555566667777888899990000";
+    var url = new Uri("http://localhost:9999/_admin/api");
+    var key = "1111222233334444555566667777888899990000";
+    using var client = new ShuckedKallitheaClient(url, key);
 
     // Get repositories information.
-    var rsp = await client.GetReposAsync();
-    await rsp.result.repos
+    var repos = await client.GetReposAsync();
+    await repos
         .Select(r => new
         {
             Name = r.repo_name,
