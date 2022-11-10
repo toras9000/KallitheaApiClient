@@ -1,6 +1,13 @@
-#r "nuget: Lestaly, 0.13.0"
+// This script is meant to run with dotnet-script.
+// You can install .NET SDK 6.0 and install dotnet-script with the following command.
+// $ dotnet tool install -g dotnet-script
+
+#r "nuget: Lestaly, 0.19.0"
 using System.Threading;
 using Lestaly;
+
+// Restart docker container with deletion of persistent data.
+// (If it is not activated, it is simply activated.)
 
 await Paved.RunAsync(async () =>
 {
@@ -8,28 +15,22 @@ await Paved.RunAsync(async () =>
     if (!composeFile.Exists) throw new PavedMessageException("Not found compose file");
 
     Console.WriteLine("Stop service");
-    var downProc = Process.Start("docker-compose", $"--file \"{composeFile.FullName}\" down");
-    await downProc.WaitForExitAsync();
-    if (downProc.ExitCode != 0) throw new PavedMessageException($"Failed to down. ExitCode={downProc.ExitCode}");
+    var downResult = await CmdProc.ExecAsync("docker-compose", new[] { "--file", composeFile.FullName, "down", });
+    if (downResult != 0) throw new PavedMessageException($"Failed to down. ExitCode={downResult}");
 
-    Console.WriteLine("Delete files");
+    Console.WriteLine("Delete config/repos");
     var confDir = ThisSource.GetRelativeDirectory("config");
     var reposDir = ThisSource.GetRelativeDirectory("repos");
     if (confDir.Exists) { confDir.DoFiles(c => c.File?.SetReadOnly(false)); confDir.Delete(recursive: true); }
     if (reposDir.Exists) { reposDir.DoFiles(c => c.File?.SetReadOnly(false)); reposDir.Delete(recursive: true); }
 
     Console.WriteLine("Start service");
-    var upProc = Process.Start("docker-compose", $"--file \"{composeFile.FullName}\" up -d");
-    await upProc.WaitForExitAsync();
-    if (upProc.ExitCode != 0) throw new PavedMessageException($"Failed to up. ExitCode={upProc.ExitCode}");
+    var upResult = await CmdProc.ExecAsync("docker-compose", new[] { "--file", composeFile.FullName, "up", "-d", });
+    if (upResult != 0) throw new PavedMessageException($"Failed to up. ExitCode={upResult}");
 
     Console.Write("Waiting initialize ... ");
     using var timer = new CancellationTokenSource(TimeSpan.FromSeconds(30));
     var iniFile = ThisSource.GetRelativeFile("config/kallithea.ini");
-    do
-    {
-        await Task.Delay(500, timer.Token);
-        iniFile.Refresh();
-    } while (!iniFile.Exists);
+    do { await Task.Delay(500, timer.Token); iniFile.Refresh(); } while (!iniFile.Exists);
     Console.WriteLine("completed.");
 });
