@@ -3,7 +3,7 @@
 /// <summary>
 /// データ部のみを取得対象とする kallithea API クライアント
 /// </summary>
-public class ShuckedKallitheaClient : IDisposable
+public class SimpleKallitheaClient : IDisposable
 {
     // 構築
     #region コンストラクタ
@@ -12,7 +12,7 @@ public class ShuckedKallitheaClient : IDisposable
     /// <param name="apiKey">APIキー。後からの設定可能。</param>
     /// <param name="clientFactory">HttpClient生成デリゲート。IHttpClientFactory による生成を仲介することを推奨。指定しない場合は新しくインスタンスを生成する。</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ShuckedKallitheaClient(Uri apiEntry, string? apiKey = null, Func<HttpClient>? clientFactory = null)
+    public SimpleKallitheaClient(Uri apiEntry, string? apiKey = null, Func<HttpClient>? clientFactory = null)
     {
         this.client = new KallitheaClient(apiEntry, apiKey, clientFactory);
     }
