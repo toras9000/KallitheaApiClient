@@ -43,3 +43,28 @@ await client.GrantUserPermToRepoGroupAsync(new("users/foo", "foo", RepoGroupPerm
 await client.CreateRepoAsync(new("users/foo/repo1", owner: "foo", repo_type: RepoType.git));
 await client.CreateRepoAsync(new("users/foo/repo2", owner: "foo", repo_type: RepoType.hg));
 ```
+
+Example:
+```csharp
+var apiUrl = new Uri("http://<your-hosting-server>/_admin/api");
+var apiKey = "<your-api-key>";
+using var client = new SimpleKallitheaClient(apiUrl, apiKey);
+
+var repositories = await client.GetReposAsync();
+foreach (var repo in repositories)
+{
+    Console.WriteLine($"{repo.repo_name}: RepoType={repo.repo_type}, Owner={repo.owner}");
+    try
+    {
+        var changesets = await client.GetChangesetsAsync(new(repo.repo_id.ToString(), max_revisions: "3", reverse: true));
+        foreach (var change in changesets)
+        {
+            Console.WriteLine($"  {change.summary.short_id} : {change.summary.message?.Trim()}");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"  Can't get changeset : {ex.Message}");
+    }
+}
+```
