@@ -1,10 +1,9 @@
-#r "nuget: KallitheaApiClient, 0.7.0.9"
-#r "nuget: Lestaly, 0.13.0"
-
 // This script is meant to run with dotnet-script.
 // You can install .NET SDK 6.0 and install dotnet-script with the following command.
 // $ dotnet tool install -g dotnet-script
 
+#r "nuget: KallitheaApiClient, 0.7.0.11"
+#r "nuget: Lestaly, 0.20.0"
 using System.Text.RegularExpressions;
 using KallitheaApiClient;
 using KallitheaApiClient.Utils;
@@ -18,7 +17,7 @@ await Paved.RunAsync((Func<ValueTask>)(async () =>
     // Read the user information to be registered.
     var targets = ThisSource.GetRelativeFile("regist-users-list.csv").ReadAllText()
         .SplitFields(',')
-        .Skip(1)
+        .Skip(1)    // Skip header
         .Where(f => 4 <= f?.Length)
         .Select(f => new { LoginID = f[0], FirstName = f[1], LastName = f[2], Mail = f[3], Password = f.ElementAtOrDefault(4), })
         .ToArray();
@@ -26,11 +25,11 @@ await Paved.RunAsync((Func<ValueTask>)(async () =>
     // Initialize the kallithea client. (Requires admin)
     var url = new Uri("http://localhost:9999/_admin/api");
     var key = "1111222233334444555566667777888899990000";
-    using var client = new ShuckedKallitheaClient(url, key);
+    using var client = new SimpleKallitheaClient(url, key);
 
     // If not, create a parent group for the group for the user.
     var baseRepoGrpName = "users";
-    var baseRepoGrpGroup = await Try.Func(() => client.GetRepoGroupInfoAsync(new(baseRepoGrpName)), _ => null);
+    var baseRepoGrpGroup = await Try.FuncOrDefaultAsync(async () => await client.GetRepoGroupInfoAsync(new(baseRepoGrpName)));
     if (baseRepoGrpGroup == null)
     {
         baseRepoGrpGroup = await client.CreateRepoGroupAsync(new(baseRepoGrpName));

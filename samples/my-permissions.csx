@@ -1,11 +1,11 @@
-#r "nuget: KallitheaApiClient, 0.7.0.9"
-#r "nuget: Lestaly, 0.13.0"
-
 // This script is meant to run with dotnet-script.
 // You can install .NET SDK 6.0 and install dotnet-script with the following command.
 // $ dotnet tool install -g dotnet-script
 
+#r "nuget: KallitheaApiClient, 0.7.0.11"
+#r "nuget: Lestaly, 0.20.0"
 using KallitheaApiClient;
+using KallitheaApiClient.Utils;
 using Lestaly;
 
 await Paved.RunAsync(async () =>
@@ -13,10 +13,10 @@ await Paved.RunAsync(async () =>
     // Initialize the client
     var url = new Uri("http://localhost:9999/_admin/api");
     var key = "1111222233334444555566667777888899990000";
-    using var client = new KallitheaClient(url, key);
+    using var client = new SimpleKallitheaClient(url, key);
 
     // Get user information.
-    var user = (await client.GetUserAsync()).result;
+    var user = await client.GetUserAsync();
     Console.WriteLine($"User: {user.user.username}");
 
     // Print a list of permissions to the repository.
