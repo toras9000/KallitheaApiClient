@@ -365,3 +365,5 @@ FodyWeavers.xsd
 # 追加の無視リスト
 service/config
 service/repos
+**/.vscode
+**/omnisharp.json
