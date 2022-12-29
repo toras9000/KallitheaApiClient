@@ -575,6 +575,8 @@ public class KallitheaClientTests
             description: "test-desc",
             owner: "foo",
             @private: true,
+            enable_downloads: true,
+            enable_statistics: true,
             clone_uri: "https://github.com/toras9000/KallitheaApiClient.git"
         );
         var response = await client.CreateRepoAsync(args, id: reqid);
@@ -590,6 +592,8 @@ public class KallitheaClientTests
             repo.clone_uri.Should().Be("https://github.com/toras9000/KallitheaApiClient.git");
             repo.@private.Should().Be(true);
             repo.owner.Should().Be("foo");
+            repo.enable_downloads.Should().Be(true);
+            repo.enable_statistics.Should().Be(true);
         }
         finally
         {
@@ -969,14 +973,41 @@ public class KallitheaClientTests
         var group = "poe";
         var repogroup = await resources.CreateTestRepoGroupAsync(new(group, parent: parent));
 
-        var response = await client.UpdateRepoGroupAsync(new($"{parent}/{group}", group_name: "new-poe", description: "new-desc"), id: reqid);
+        var response = await client.UpdateRepoGroupAsync(new($"{parent}/{group}", group_name: "new-poe", description: "new-desc", owner: "foo"), id: reqid);
         response.id.Should().Be(reqid);
         response.result.msg.Should().NotBeNullOrEmpty();
         response.result.repo_group.group_name.Should().Be("share/new-poe");
         response.result.repo_group.parent_group.Should().Be("share");
         response.result.repo_group.group_description.Should().Be("new-desc");
-        response.result.repo_group.owner.Should().Be("admin");
+        response.result.repo_group.owner.Should().Be("foo");
         response.result.repo_group.repositories.Should().BeEmpty();
+    }
+
+    [TestMethod()]
+    public async Task UpdateRepoGroupAsync_Move()
+    {
+        using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
+
+        await using var resources = new TestResourceContainer(client);
+
+        var reqid = "abcd";
+        var parent = "share";
+        var group = $"testgrp_{DateTime.Now:HHmm_ss}";
+        var repogroup = await resources.CreateTestRepoGroupAsync(new(group, parent: parent));
+
+        var grpA = (await client.CreateRepoGroupAsync(new("GrpA", parent: repogroup.group_name))).result.repo_group;
+        var grpB = (await client.CreateRepoGroupAsync(new("GrpB", parent: repogroup.group_name))).result.repo_group;
+        var childGrp = (await client.CreateRepoGroupAsync(new("test", parent: grpA.group_name))).result.repo_group;
+
+        var response = await client.UpdateRepoGroupAsync(new(childGrp.group_name, group_name: "test-ren", parent: grpB.group_name), id: reqid);
+        response.id.Should().Be(reqid);
+        response.result.msg.Should().NotBeNullOrEmpty();
+        response.result.repo_group.group_name.Should().Be($"{grpB.group_name}/test-ren");
+        response.result.repo_group.parent_group.Should().Be(grpB.group_name);
+
+        var verify = await client.GetRepoGroupAsync(new($"{grpB.group_name}/test-ren"), id: reqid);
+        verify.result.repogroup.group_name.Should().Be($"{grpB.group_name}/test-ren");
+        verify.result.repogroup.parent_group.Should().Be(grpB.group_name);
     }
 
     [TestMethod()]
