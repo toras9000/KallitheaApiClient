@@ -11,14 +11,24 @@ Kallithea is a self-hosted repository hosting WEB application.
 It's a relatively simple mapper to the API's JSON interface, so it should be easy to match with the Kallithea [API documentation](https://kallithea.readthedocs.io/en/latest/api/api.html).  
 Sorry, IntelliSense messages (documentation comments) for types and members are provided in Japanese. This is because I currently think that the main users are me and the people around me.  
 
-The first three parts of the package version represent the target version of Kallithea.  
+## Package and API version 
+
+Although the Kallithea API specification may change from version to version, this library targets only a single version.  
+If the version targeted by the library does not match the server version, there is a large possibility that it will not work properly.  
+
+The package version represents the corresponding server version.  
+The first three parts of the version match the first three parts of the target Kallithea version.  
 Be aware that if the versions do not match, the API specifications may not match.  
 
-The fourth revision value shows the version value of this library.  
+The revision value, which is the fourth part of the version, indicates the version of this library.  
 Therefore, unlike general library versioning, the difference in revision values is not necessarily a trivial change.  
 
+## Examples
 
-Example:
+Some samples are shown below.  
+These use C#9 or later syntax.  
+
+### Creation of users, repositories, etc.
 ```csharp
 var apiUrl = new Uri("http://<your-hosting-server>/_admin/api");
 var apiKey = "<your-api-key>";
@@ -44,7 +54,7 @@ await client.CreateRepoAsync(new("users/foo/repo1", owner: "foo", repo_type: Rep
 await client.CreateRepoAsync(new("users/foo/repo2", owner: "foo", repo_type: RepoType.hg));
 ```
 
-Example:
+### Displays the most recent changesets for each repository.
 ```csharp
 var apiUrl = new Uri("http://<your-hosting-server>/_admin/api");
 var apiKey = "<your-api-key>";
@@ -56,10 +66,12 @@ foreach (var repo in repositories)
     Console.WriteLine($"{repo.repo_name}: RepoType={repo.repo_type}, Owner={repo.owner}");
     try
     {
-        var changesets = await client.GetChangesetsAsync(new(repo.repo_id.ToString(), max_revisions: "3", reverse: true));
+        var args = new GetChangesetsArgs(repo.repo_name, max_revisions: "3", reverse: true);
+        var changesets = await client.GetChangesetsAsync(args);
         foreach (var change in changesets)
         {
-            Console.WriteLine($"  {change.summary.short_id} : {change.summary.message?.Trim()}");
+            var msgline = change.summary.message?.Split('\r', '\n')[0].Trim();
+            Console.WriteLine($"  {change.summary.short_id} : {msgline}");
         }
     }
     catch (Exception ex)
