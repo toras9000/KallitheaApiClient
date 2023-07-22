@@ -6,7 +6,7 @@
 #r "nuget: Dapper, 2.0.123"
 #r "nuget: LibGit2Sharp, 0.27.2"
 #r "nuget: AngleSharp, 1.0.4"
-#r "nuget: KallitheaApiClient, 0.7.0.11"
+#r "nuget: KallitheaApiClient, 0.7.0.13"
 #r "nuget: Lestaly, 0.42.0"
 using System.Data.SQLite;
 using AngleSharp;
