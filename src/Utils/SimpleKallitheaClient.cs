@@ -181,8 +181,8 @@ public class SimpleKallitheaClient : IDisposable
     /// <param name="args">要求パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>結果取得タスク</returns>
-    public Task<DeleteUserToUserGroupResult> DeleteUserFromUserGroupAsync(UserWithUserGroupArgs args, CancellationToken cancelToken = default)
-        => this.client.DeleteUserFromUserGroupAsync(args, takeId(), cancelToken).UnwrapResponse();
+    public Task<RemoveUserToUserGroupResult> RemoveUserFromUserGroupAsync(UserWithUserGroupArgs args, CancellationToken cancelToken = default)
+        => this.client.RemoveUserFromUserGroupAsync(args, takeId(), cancelToken).UnwrapResponse();
 
     /// <summary>リポジトリの情報を取得する。</summary>
     /// <remarks>リポジトリの読み取り権限を持つキーで実行可能。</remarks>

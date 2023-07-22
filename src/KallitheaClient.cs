@@ -202,8 +202,8 @@ public class KallitheaClient : IDisposable
     /// <param name="id">任意の要求識別子</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>レスポンス取得タスク</returns>
-    public Task<ApiResponse<DeleteUserToUserGroupResult>> DeleteUserFromUserGroupAsync(UserWithUserGroupArgs args, string? id = null, CancellationToken cancelToken = default)
-        => createContext(id, "remove_user_from_user_group", args).PostAsync<DeleteUserToUserGroupResult>(cancelToken);
+    public Task<ApiResponse<RemoveUserToUserGroupResult>> RemoveUserFromUserGroupAsync(UserWithUserGroupArgs args, string? id = null, CancellationToken cancelToken = default)
+        => createContext(id, "remove_user_from_user_group", args).PostAsync<RemoveUserToUserGroupResult>(cancelToken);
 
     /// <summary>リポジトリの情報を取得する。</summary>
     /// <remarks>リポジトリの読み取り権限を持つキーで実行可能。</remarks>

@@ -633,7 +633,7 @@ public record AddUserToUserGroupResult(bool success, string msg);
 /// <summary>ユーザグループからのユーザ削除要求 応答情報</summary>
 /// <param name="success">削除したか否か</param>
 /// <param name="msg">メッセージ</param>
-public record DeleteUserToUserGroupResult(bool success, string msg);
+public record RemoveUserToUserGroupResult(bool success, string msg);
 
 /// <summary>リポジトリ情報取得要求 応答情報</summary>
 /// <param name="repo">リポジトリ情報</param>

@@ -367,7 +367,7 @@ public class KallitheaClientTests
     }
 
     [TestMethod()]
-    public async Task DeleteUserFromUserGroupAsync()
+    public async Task RemoveUserFromUserGroupAsync()
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
@@ -377,7 +377,7 @@ public class KallitheaClientTests
         await client.AddUserToUserGroupAsync(new(group_name, "foo"));
         (await client.GetUserGroupAsync(new(group_name), id: reqid)).result.user_group.members.Should().Satisfy(u => u.username == "foo");
 
-        var response = await client.DeleteUserFromUserGroupAsync(new(group_name, "foo"), id: reqid);
+        var response = await client.RemoveUserFromUserGroupAsync(new(group_name, "foo"), id: reqid);
         response.id.Should().Be(reqid);
         response.result.msg.Should().NotBeNullOrEmpty();
 
