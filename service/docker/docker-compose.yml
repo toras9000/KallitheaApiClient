@@ -1,7 +1,11 @@
 version: '3.5'
 services:
   app:
-    image: toras9000/kallithea-mp:0.7.0
+    image: my-local/kallithea-rev:36a36ebdf4bb
+    build:
+      context: ./build
+      args:
+        - KALLITHEA_REV=36a36ebdf4bb
     command: dumb-init bash /kallithea/assets/patched_startup.sh
     restart: unless-stopped
     ports:
