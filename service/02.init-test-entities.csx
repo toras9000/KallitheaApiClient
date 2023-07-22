@@ -2,12 +2,12 @@
 // You can install .NET SDK 6.0 and install dotnet-script with the following command.
 // $ dotnet tool install -g dotnet-script
 
-#r "nuget: System.Data.SQLite.Core, 1.0.116"
+#r "nuget: System.Data.SQLite.Core, 1.0.118"
 #r "nuget: Dapper, 2.0.123"
-#r "nuget: LibGit2Sharp, 0.26.2"
-#r "nuget: AngleSharp, 0.17.1"
-#r "nuget: KallitheaApiClient, 0.7.0.10"
-#r "nuget: Lestaly, 0.19.0"
+#r "nuget: LibGit2Sharp, 0.27.2"
+#r "nuget: AngleSharp, 1.0.4"
+#r "nuget: KallitheaApiClient, 0.7.0.11"
+#r "nuget: Lestaly, 0.42.0"
 using System.Data.SQLite;
 using AngleSharp;
 using AngleSharp.Html.Dom;
@@ -23,7 +23,7 @@ await Paved.RunAsync(async () =>
 
     // Connection settings for kallithea db.
     var db_settings = new SQLiteConnectionStringBuilder();
-    db_settings.DataSource = ThisSource.GetRelativeFile("./config/kallithea.db").FullName;
+    db_settings.DataSource = ThisSource.RelativeFile("./config/kallithea.db").FullName;
     db_settings.FailIfMissing = true;
 
     // Connect to db and state check.
@@ -91,7 +91,7 @@ await Paved.RunAsync(async () =>
     await client.GrantUserPermToRepoGroupAsync(new("users/bar", "foo", RepoGroupPerm.write));
     await client.GrantUserGroupPermToRepoGroupAsync(new("users/bar", "tester", RepoGroupPerm.read));
 
-    makeDummyCommits(ThisSource.GetRelativeDirectory("./repos/users/foo/repo1"), context =>
+    makeDummyCommits(ThisSource.RelativeDirectory("./repos/users/foo/repo1"), context =>
     {
         var author = new Author("foo", "foo@example.com");
         var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("aaa.txt", "aaa"), new("bbb.txt", "bbb"), });
@@ -104,7 +104,7 @@ await Paved.RunAsync(async () =>
     });
     await client.InvalidateCacheAsync(new("users/foo/repo1"));
 
-    makeDummyCommits(ThisSource.GetRelativeDirectory("./repos/users/foo/repo3"), context =>
+    makeDummyCommits(ThisSource.RelativeDirectory("./repos/users/foo/repo3"), context =>
     {
         var author = new Author("foo", "foo@example.com");
         var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("xxx/a.txt", "xA"), new("a.txt", "A"), new("b.txt", "B") });
@@ -113,7 +113,7 @@ await Paved.RunAsync(async () =>
     });
     await client.InvalidateCacheAsync(new("users/foo/repo1"));
 
-    makeDummyCommits(ThisSource.GetRelativeDirectory("./repos/users/bar/repo1"), context =>
+    makeDummyCommits(ThisSource.RelativeDirectory("./repos/users/bar/repo1"), context =>
     {
         var author = new Author("bar", "bar@example.com");
         var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("aaa.txt", "aaa"), new("bbb.txt", "bbb"), });
@@ -136,7 +136,7 @@ await Paved.RunAsync(async () =>
     await client.GrantUserGroupPermToRepoAsync(new("users/bar/fork-foo-repo1", "tester", RepoPerm.write));
     await client.GrantUserGroupPermToRepoAsync(new("users/bar/fork-foo-clone1", "tester", RepoPerm.write));
 
-    makeDummyCommits(ThisSource.GetRelativeDirectory("./repos/users/bar/fork-foo-repo1"), context =>
+    makeDummyCommits(ThisSource.RelativeDirectory("./repos/users/bar/fork-foo-repo1"), context =>
     {
         var author = new Author("bar", "bar@example.com");
         var commit1 = context.AddCommit("commit 4", author, new FileBlob[] { new("aaa.txt", null), new("ddd.txt", "ddd"), });

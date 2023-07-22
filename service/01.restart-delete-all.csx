@@ -2,7 +2,7 @@
 // You can install .NET SDK 6.0 and install dotnet-script with the following command.
 // $ dotnet tool install -g dotnet-script
 
-#r "nuget: Lestaly, 0.19.0"
+#r "nuget: Lestaly, 0.42.0"
 using System.Threading;
 using Lestaly;
 
@@ -11,7 +11,7 @@ using Lestaly;
 
 await Paved.RunAsync(async () =>
 {
-    var composeFile = ThisSource.GetRelativeFile("docker-compose.yml");
+    var composeFile = ThisSource.RelativeFile("docker-compose.yml");
     if (!composeFile.Exists) throw new PavedMessageException("Not found compose file");
 
     Console.WriteLine("Stop service");
@@ -19,8 +19,8 @@ await Paved.RunAsync(async () =>
     if (downResult != 0) throw new PavedMessageException($"Failed to down. ExitCode={downResult}");
 
     Console.WriteLine("Delete config/repos");
-    var confDir = ThisSource.GetRelativeDirectory("config");
-    var reposDir = ThisSource.GetRelativeDirectory("repos");
+    var confDir = ThisSource.RelativeDirectory("config");
+    var reposDir = ThisSource.RelativeDirectory("repos");
     if (confDir.Exists) { confDir.DoFiles(c => c.File?.SetReadOnly(false)); confDir.Delete(recursive: true); }
     if (reposDir.Exists) { reposDir.DoFiles(c => c.File?.SetReadOnly(false)); reposDir.Delete(recursive: true); }
 
@@ -30,7 +30,7 @@ await Paved.RunAsync(async () =>
 
     Console.Write("Waiting initialize ... ");
     using var timer = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-    var iniFile = ThisSource.GetRelativeFile("config/kallithea.ini");
+    var iniFile = ThisSource.RelativeFile("config/kallithea.ini");
     do { await Task.Delay(500, timer.Token); iniFile.Refresh(); } while (!iniFile.Exists);
     Console.WriteLine("completed.");
 });
