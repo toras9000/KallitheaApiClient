@@ -16,7 +16,7 @@
   <PropertyGroup>
     <Authors>toras9000</Authors>
     <Company />
-    <Version>0.7.0.11</Version>
+    <Version>0.7.0.13</Version>
   </PropertyGroup>
   <PropertyGroup>
     <PackageProjectUrl>https://github.com/toras9000/KallitheaApiClient</PackageProjectUrl>
