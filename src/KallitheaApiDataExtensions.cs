@@ -35,8 +35,11 @@ public static class KallitheaApiDataExtensions
     /// <typeparam name="TResult">APIレスポンスの応答データ型</typeparam>
     /// <param name="self">API要求タスク</param>
     /// <returns>応答データを得るタスク</returns>
-    public static Task<TResult> UnwrapResponse<TResult>(this Task<ApiResponse<TResult>> self)
-        => self.ContinueWith(t => t.Result.result);
+    public static async Task<TResult> UnwrapResponse<TResult>(this Task<ApiResponse<TResult>> self)
+    {
+        var response = await self.ConfigureAwait(false);
+        return response.result;
+    }
 
     /// <summary>API要求タスクを主要なレスポンス値からの変換結果のみを返すタスクにアンラップする</summary>
     /// <typeparam name="TResult">APIレスポンスの応答データ型</typeparam>
@@ -44,7 +47,11 @@ public static class KallitheaApiDataExtensions
     /// <param name="self">API要求タスク</param>
     /// <param name="converter">レスポンス値の変換デリゲート</param>
     /// <returns>応答データを得るタスク</returns>
-    public static Task<TConverted> ConvertResponse<TResult, TConverted>(this Task<ApiResponse<TResult>> self, Func<TResult, TConverted> converter)
-        => self.ContinueWith(t => converter(t.Result.result));
+    public static async Task<TConverted> ConvertResponse<TResult, TConverted>(this Task<ApiResponse<TResult>> self, Func<TResult, TConverted> converter)
+    {
+        ArgumentNullException.ThrowIfNull(converter);
+        var response = await self.ConfigureAwait(false);
+        return converter(response.result);
+    }
 
 }
