@@ -30,4 +30,21 @@ public static class KallitheaApiDataExtensions
     {
         return UserGroupPermJsonConverter.PermPrefix + self.ToString();
     }
+
+    /// <summary>API要求タスクを主要なレスポンス値のみを返すタスクにアンラップする</summary>
+    /// <typeparam name="TResult">APIレスポンスの応答データ型</typeparam>
+    /// <param name="self">API要求タスク</param>
+    /// <returns>応答データを得るタスク</returns>
+    public static Task<TResult> UnwrapResponse<TResult>(this Task<ApiResponse<TResult>> self)
+        => self.ContinueWith(t => t.Result.result);
+
+    /// <summary>API要求タスクを主要なレスポンス値からの変換結果のみを返すタスクにアンラップする</summary>
+    /// <typeparam name="TResult">APIレスポンスの応答データ型</typeparam>
+    /// <typeparam name="TConverted">変換結果のデータ型</typeparam>
+    /// <param name="self">API要求タスク</param>
+    /// <param name="converter">レスポンス値の変換デリゲート</param>
+    /// <returns>応答データを得るタスク</returns>
+    public static Task<TConverted> ConvertResponse<TResult, TConverted>(this Task<ApiResponse<TResult>> self, Func<TResult, TConverted> converter)
+        => self.ContinueWith(t => converter(t.Result.result));
+
 }
