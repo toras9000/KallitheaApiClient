@@ -1,13 +1,14 @@
-// This script is meant to run with dotnet-script.
-// You can install .NET SDK 6.0 and install dotnet-script with the following command.
-// $ dotnet tool install -g dotnet-script
-
-#r "nuget: KallitheaApiClient, 0.7.0.11"
-#r "nuget: Lestaly, 0.20.0"
+#r "nuget: KallitheaApiClient, 0.7.0.13"
+#r "nuget: Lestaly, 0.42.0"
+#nullable enable
 using System.Text.RegularExpressions;
 using KallitheaApiClient;
 using KallitheaApiClient.Utils;
 using Lestaly;
+
+// This script is meant to run with dotnet-script.
+// You can install .NET SDK 6.0 and install dotnet-script with the following command.
+// $ dotnet tool install -g dotnet-script
 
 // Create a repository group along with adding users to create a simple dedicated area.
 // Users to be registered are defined in a csv file.
@@ -15,7 +16,7 @@ using Lestaly;
 await Paved.RunAsync((Func<ValueTask>)(async () =>
 {
     // Read the user information to be registered.
-    var targets = ThisSource.GetRelativeFile("regist-users-list.csv").ReadAllText()
+    var targets = ThisSource.RelativeFile("regist-users-list.csv").ReadAllText()
         .SplitFields(',')
         .Skip(1)    // Skip header
         .Where(f => 4 <= f?.Length)

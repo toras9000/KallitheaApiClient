@@ -1,12 +1,13 @@
-// This script is meant to run with dotnet-script.
-// You can install .NET SDK 6.0 and install dotnet-script with the following command.
-// $ dotnet tool install -g dotnet-script
-
-#r "nuget: KallitheaApiClient, 0.7.0.11"
-#r "nuget: Lestaly, 0.20.0"
+#r "nuget: KallitheaApiClient, 0.7.0.13"
+#r "nuget: Lestaly, 0.42.0"
+#nullable enable
 using KallitheaApiClient;
 using KallitheaApiClient.Utils;
 using Lestaly;
+
+// This script is meant to run with dotnet-script.
+// You can install .NET SDK 6.0 and install dotnet-script with the following command.
+// $ dotnet tool install -g dotnet-script
 
 await Paved.RunAsync(async () =>
 {
@@ -19,7 +20,7 @@ await Paved.RunAsync(async () =>
     var repos = await client.GetReposAsync();
 
     // Save to csv file.
-    var saveFile = ThisSource.GetRelativeFile($"get-repos_{DateTime.Now:yyyyMMdd_Hhmmss}.csv");
+    var saveFile = ThisSource.RelativeFile($"get-repos_{DateTime.Now:yyyyMMdd_Hhmmss}.csv");
     await repos
         .Select(r => new
         {

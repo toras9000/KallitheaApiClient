@@ -1,12 +1,13 @@
-// This script is meant to run with dotnet-script.
-// You can install .NET SDK 6.0 and install dotnet-script with the following command.
-// $ dotnet tool install -g dotnet-script
-
-#r "nuget: KallitheaApiClient, 0.7.0.11"
-#r "nuget: Lestaly, 0.20.0"
+#r "nuget: KallitheaApiClient, 0.7.0.13"
+#r "nuget: Lestaly, 0.42.0"
+#nullable enable
 using KallitheaApiClient;
 using KallitheaApiClient.Utils;
 using Lestaly;
+
+// This script is meant to run with dotnet-script.
+// You can install .NET SDK 6.0 and install dotnet-script with the following command.
+// $ dotnet tool install -g dotnet-script
 
 await Paved.RunAsync(async () =>
 {
