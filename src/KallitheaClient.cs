@@ -478,7 +478,8 @@ public class KallitheaClient : IDisposable
         var rsp = await createContext(id, "get_changeset", args).PostAsync<JsonElement>(cancelToken).ConfigureAwait(false);
         var summary = rsp.result.Deserialize<ChangesetSummary2>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(ChangesetSummary2)}");
         var filelist = rsp.result.Deserialize<ChangesetFileList>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(ChangesetFileList)}");
-        return new ApiResponse<GetChangesetResult>(rsp.id, new(summary, filelist));
+        var reviews = rsp.result.TryGetProperty(nameof(GetChangesetResult.reviews), out var reviews_prop) ? reviews_prop.Deserialize<Status[]>() : default;
+        return new ApiResponse<GetChangesetResult>(rsp.id, new(summary, filelist, reviews));
     }
 
     /// <summary>プルリクエスト情報を取得する</summary>

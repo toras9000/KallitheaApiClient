@@ -758,7 +758,8 @@ public record GetChangesetsResult(Changeset[] changesets);
 /// <summary>チェンジセット情報取得 応答情報</summary>
 /// <param name="summary">チェンジセット要約情報</param>
 /// <param name="filelist">チェンジセット変更ファイルリスト</param>
-public record GetChangesetResult(ChangesetSummary2 summary, ChangesetFileList filelist);
+/// <param name="reviews">レビュー情報</param>
+public record GetChangesetResult(ChangesetSummary2 summary, ChangesetFileList filelist, Status[]? reviews);
 
 /// <summary>プルリクエスト情報取得 応答情報</summary>
 /// <param name="pullrequest">プルリクエスト情報</param>

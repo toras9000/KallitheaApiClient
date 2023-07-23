@@ -1241,6 +1241,23 @@ public class KallitheaClientTests
     }
 
     [TestMethod()]
+    public async Task GetChangesetAsync_WithReviews()
+    {
+        using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
+
+        await using var resources = new TestResourceContainer(client);
+
+        var testrepo = "users/foo/repo1";
+        var changesets = (await client.GetChangesetsAsync(new(testrepo))).result.changesets;
+
+        var reqid = "abcd";
+        var response = await client.GetChangesetAsync(new(testrepo, changesets[0].summary.raw_id, with_reviews: true), id: reqid);
+        response.id.Should().Be(reqid);
+        response.result.reviews.Should()
+            .ContainEquivalentOf(new Status(status: "under_review", modified_at: "", reviewer: "foo"), c => c.Excluding(s => s.modified_at));
+    }
+
+    [TestMethod()]
     public async Task GetPullRequestAsync()
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
