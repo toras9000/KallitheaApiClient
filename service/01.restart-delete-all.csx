@@ -11,26 +11,26 @@ using Lestaly;
 
 await Paved.RunAsync(async () =>
 {
-    var composeFile = ThisSource.RelativeFile("docker-compose.yml");
+    var baseDir = ThisSource.RelativeDirectory("./docker");
+
+    var composeFile = baseDir.RelativeFile("docker-compose.yml");
     if (!composeFile.Exists) throw new PavedMessageException("Not found compose file");
 
     Console.WriteLine("Stop service");
-    var downResult = await CmdProc.ExecAsync("docker-compose", new[] { "--file", composeFile.FullName, "down", });
-    if (downResult != 0) throw new PavedMessageException($"Failed to down. ExitCode={downResult}");
+    await CmdProc.ExecAsync("docker-compose", new[] { "--file", composeFile.FullName, "down", }).AsSuccessCode();
 
     Console.WriteLine("Delete config/repos");
-    var confDir = ThisSource.RelativeDirectory("config");
-    var reposDir = ThisSource.RelativeDirectory("repos");
+    var confDir = baseDir.RelativeDirectory("config");
+    var reposDir = baseDir.RelativeDirectory("repos");
     if (confDir.Exists) { confDir.DoFiles(c => c.File?.SetReadOnly(false)); confDir.Delete(recursive: true); }
     if (reposDir.Exists) { reposDir.DoFiles(c => c.File?.SetReadOnly(false)); reposDir.Delete(recursive: true); }
 
     Console.WriteLine("Start service");
-    var upResult = await CmdProc.ExecAsync("docker-compose", new[] { "--file", composeFile.FullName, "up", "-d", });
-    if (upResult != 0) throw new PavedMessageException($"Failed to up. ExitCode={upResult}");
+    await CmdProc.ExecAsync("docker-compose", new[] { "--file", composeFile.FullName, "up", "-d", }).AsSuccessCode();
 
     Console.Write("Waiting initialize ... ");
     using var timer = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-    var iniFile = ThisSource.RelativeFile("config/kallithea.ini");
+    var iniFile = baseDir.RelativeFile("config/kallithea.ini");
     do { await Task.Delay(500, timer.Token); iniFile.Refresh(); } while (!iniFile.Exists);
     Console.WriteLine("completed.");
 });

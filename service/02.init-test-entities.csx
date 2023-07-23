@@ -18,12 +18,14 @@ using LibGit2Sharp;
 
 await Paved.RunAsync(async () =>
 {
+    var baseDir = ThisSource.RelativeDirectory("./docker");
+
     // API key to set up.
     var apiKey = "1111222233334444555566667777888899990000";
 
     // Connection settings for kallithea db.
     var db_settings = new SQLiteConnectionStringBuilder();
-    db_settings.DataSource = ThisSource.RelativeFile("./config/kallithea.db").FullName;
+    db_settings.DataSource = baseDir.RelativeFile("./config/kallithea.db").FullName;
     db_settings.FailIfMissing = true;
 
     // Connect to db and state check.
@@ -91,7 +93,7 @@ await Paved.RunAsync(async () =>
     await client.GrantUserPermToRepoGroupAsync(new("users/bar", "foo", RepoGroupPerm.write));
     await client.GrantUserGroupPermToRepoGroupAsync(new("users/bar", "tester", RepoGroupPerm.read));
 
-    makeDummyCommits(ThisSource.RelativeDirectory("./repos/users/foo/repo1"), context =>
+    makeDummyCommits(baseDir.RelativeDirectory("./repos/users/foo/repo1"), context =>
     {
         var author = new Author("foo", "foo@example.com");
         var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("aaa.txt", "aaa"), new("bbb.txt", "bbb"), });
@@ -104,7 +106,7 @@ await Paved.RunAsync(async () =>
     });
     await client.InvalidateCacheAsync(new("users/foo/repo1"));
 
-    makeDummyCommits(ThisSource.RelativeDirectory("./repos/users/foo/repo3"), context =>
+    makeDummyCommits(baseDir.RelativeDirectory("./repos/users/foo/repo3"), context =>
     {
         var author = new Author("foo", "foo@example.com");
         var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("xxx/a.txt", "xA"), new("a.txt", "A"), new("b.txt", "B") });
@@ -113,7 +115,7 @@ await Paved.RunAsync(async () =>
     });
     await client.InvalidateCacheAsync(new("users/foo/repo1"));
 
-    makeDummyCommits(ThisSource.RelativeDirectory("./repos/users/bar/repo1"), context =>
+    makeDummyCommits(baseDir.RelativeDirectory("./repos/users/bar/repo1"), context =>
     {
         var author = new Author("bar", "bar@example.com");
         var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("aaa.txt", "aaa"), new("bbb.txt", "bbb"), });
@@ -136,7 +138,7 @@ await Paved.RunAsync(async () =>
     await client.GrantUserGroupPermToRepoAsync(new("users/bar/fork-foo-repo1", "tester", RepoPerm.write));
     await client.GrantUserGroupPermToRepoAsync(new("users/bar/fork-foo-clone1", "tester", RepoPerm.write));
 
-    makeDummyCommits(ThisSource.RelativeDirectory("./repos/users/bar/fork-foo-repo1"), context =>
+    makeDummyCommits(baseDir.RelativeDirectory("./repos/users/bar/fork-foo-repo1"), context =>
     {
         var author = new Author("bar", "bar@example.com");
         var commit1 = context.AddCommit("commit 4", author, new FileBlob[] { new("aaa.txt", null), new("ddd.txt", "ddd"), });

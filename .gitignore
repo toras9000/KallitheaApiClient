@@ -363,7 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # 追加の無視リスト
-service/config
-service/repos
+service/docker/config
+service/docker/repos
 **/.vscode
 **/omnisharp.json
