@@ -228,6 +228,12 @@ public record Reviewer(string username);
 /// <param name="created_on">作成日時</param>
 public record Comment(long comment_id, string username, string text, DateTime created_on);
 
+/// <summary>インラインコメント情報</summary>
+/// <param name="file_name">ファイル名</param>
+/// <param name="comments">インラインコメント</param>
+[JsonConverter(typeof(InlineCommentJsonConverter))]
+public record InlineComment(string file_name, PropertySet<Comment[]> comments);
+
 /// <summary>レビューステータス情報</summary>
 /// <param name="status">ステータス</param>
 /// <param name="modified_at">更新日時</param>
@@ -567,7 +573,9 @@ public record GetChangesetsArgs(
 /// <param name="repoid">リポジトリIDまたはリポジトリパス</param>
 /// <param name="raw_id">取得対象リビジョン</param>
 /// <param name="with_reviews">レビュア情報を取得するか否か</param>
-public record GetChangesetArgs(string repoid, string raw_id, bool? with_reviews = null);
+/// <param name="with_comments">コメントを取得するか否か</param>
+/// <param name="with_inline_comments">インラインコメントを取得するか否か</param>
+public record GetChangesetArgs(string repoid, string raw_id, bool? with_reviews = null, bool? with_comments = null, bool? with_inline_comments = null);
 
 /// <summary>プルリクエスト情報取得要求パラメータ</summary>
 /// <param name="pullrequest_id">プルリクエストID</param>
@@ -793,7 +801,9 @@ public record GetChangesetsResult(Changeset[] changesets);
 /// <param name="summary">チェンジセット要約情報</param>
 /// <param name="filelist">チェンジセット変更ファイルリスト</param>
 /// <param name="reviews">レビュー情報</param>
-public record GetChangesetResult(ChangesetSummary2 summary, ChangesetFileList filelist, Status[]? reviews);
+/// <param name="comments">コメント</param>
+/// <param name="inline_comments">インラインコメント</param>
+public record GetChangesetResult(ChangesetSummary2 summary, ChangesetFileList filelist, Status[]? reviews, Comment[]? comments, InlineComment[]? inline_comments);
 
 /// <summary>プルリクエスト情報取得 応答情報</summary>
 /// <param name="pullrequest">プルリクエスト情報</param>

@@ -3,6 +3,8 @@ using System.Diagnostics;
 #endif
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using KallitheaApiClient.Converters;
 
 namespace KallitheaApiClient;
 
@@ -478,8 +480,8 @@ public class KallitheaClient : IDisposable
         var rsp = await CreateContext(id, "get_changeset", args).PostAsync<JsonElement>(cancelToken).ConfigureAwait(false);
         var summary = rsp.result.Deserialize<ChangesetSummary2>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(ChangesetSummary2)}");
         var filelist = rsp.result.Deserialize<ChangesetFileList>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(ChangesetFileList)}");
-        var reviews = rsp.result.TryGetProperty(nameof(GetChangesetResult.reviews), out var reviews_prop) ? reviews_prop.Deserialize<Status[]>() : default;
-        return new ApiResponse<GetChangesetResult>(rsp.id, new(summary, filelist, reviews));
+        var options = rsp.result.Deserialize<InternalChangesetOptions>();
+        return new ApiResponse<GetChangesetResult>(rsp.id, new(summary, filelist, options?.reviews, options?.comments, options?.inline_comments));
     }
 
     /// <summary>プルリクエスト情報を取得する</summary>
@@ -640,6 +642,12 @@ public class KallitheaClient : IDisposable
     #region 内部型
     /// <summary>get_user 要求の応答JSONスキーマ</summary>
     private record InternalGetUserResult(long user_id, string username, string firstname, string lastname, string email, string[] emails, bool active, bool admin, UserPermissions permissions);
+
+    /// <summary>get_changeset 要求のオプション情報</summary>
+    /// <param name="reviews">レビュー情報</param>
+    /// <param name="comments">コメント</param>
+    /// <param name="inline_comments">インラインコメント</param>
+    private record InternalChangesetOptions(Status[]? reviews, Comment[]? comments, InlineComment[]? inline_comments);
     #endregion
 
     // 非公開フィールド

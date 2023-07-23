@@ -1300,6 +1300,50 @@ public class KallitheaClientTests
     }
 
     [TestMethod()]
+    public async Task GetChangesetAsync_WithComments()
+    {
+        using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
+
+        await using var resources = new TestResourceContainer(client);
+
+        var testrepo = "users/foo/repo1";
+        var changesets = (await client.GetChangesetsAsync(new(testrepo))).result.changesets;
+
+        var reqid = "abcd";
+        var response = await client.GetChangesetAsync(new(testrepo, changesets[0].summary.raw_id, with_comments: true), id: reqid);
+        response.id.Should().Be(reqid);
+        response.result.comments.Should()
+            .ContainEquivalentOf(new Comment(comment_id: 0, username: "foo", text: "*", created_on: default), c => c.Including(s => s.username));
+    }
+
+    [TestMethod()]
+    public async Task GetChangesetAsync_WithInlineComments()
+    {
+        using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
+
+        await using var resources = new TestResourceContainer(client);
+
+        var testrepo = "users/foo/repo1";
+        var changesets = (await client.GetChangesetsAsync(new(testrepo))).result.changesets;
+
+        var reqid = "abcd";
+        var response = await client.GetChangesetAsync(new(testrepo, changesets[0].summary.raw_id, with_inline_comments: true), id: reqid);
+        response.id.Should().Be(reqid);
+        response.result.inline_comments.Should().SatisfyRespectively(
+            c =>
+            {
+                c.file_name.Should().Be("aaa.txt");
+                var n1comment = c.comments.FirstOrDefault(i => i.name == "n1");
+                n1comment.Should().NotBeNull();
+                n1comment.value.Should().BeEquivalentTo(new Comment[]
+                {
+                    new(comment_id: 0, username: "foo", text: "*", created_on: default),
+                }, c => c.Including(s => s.username));
+            }
+        );
+    }
+
+    [TestMethod()]
     public async Task GetPullRequestAsync()
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
