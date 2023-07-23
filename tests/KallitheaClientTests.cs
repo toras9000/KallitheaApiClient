@@ -1,7 +1,5 @@
 ﻿using System.Net;
 using FluentAssertions;
-using FluentAssertions.Common;
-using FluentAssertions.Extensions;
 using KallitheaApiClientTest._Test;
 
 namespace KallitheaApiClient.Tests;
@@ -111,24 +109,18 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var userid = "aaa";
-
-        var response = await client.CreateUserAsync(new(userid, "aaa@example.com", "first", "last"), id: reqid);
-        try
-        {
-            response.id.Should().Be(reqid);
-            response.result.user.username.Should().Be(userid);
-            response.result.user.firstname.Should().Be("first");
-            response.result.user.lastname.Should().Be("last");
-            response.result.user.email.Should().Be("aaa@example.com");
-            response.result.user.active.Should().Be(true);
-            response.result.user.admin.Should().Be(false);
-        }
-        finally
-        {
-            await client.DeleteUserAsync(new(userid));
-        }
+        var response = await client.CreateUserAsync(new(userid, "aaa@example.com", "first", "last"), id: reqid).WillBeDiscarded(resources);
+        response.id.Should().Be(reqid);
+        response.result.user.username.Should().Be(userid);
+        response.result.user.firstname.Should().Be("first");
+        response.result.user.lastname.Should().Be("last");
+        response.result.user.email.Should().Be("aaa@example.com");
+        response.result.user.active.Should().Be(true);
+        response.result.user.admin.Should().Be(false);
     }
 
     [TestMethod()]
@@ -136,24 +128,18 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var userid = "bbb";
-
-        var response = await client.CreateUserAsync(new(userid, "bbb@example.com", "first", "last", "pass", active: true, admin: false), id: reqid);
-        try
-        {
-            response.id.Should().Be(reqid);
-            response.result.user.username.Should().Be(userid);
-            response.result.user.firstname.Should().Be("first");
-            response.result.user.lastname.Should().Be("last");
-            response.result.user.email.Should().Be("bbb@example.com");
-            response.result.user.active.Should().Be(true);
-            response.result.user.admin.Should().Be(false);
-        }
-        finally
-        {
-            await client.DeleteUserAsync(new(userid));
-        }
+        var response = await client.CreateUserAsync(new(userid, "bbb@example.com", "first", "last", "pass", active: true, admin: false), id: reqid).WillBeDiscarded(resources);
+        response.id.Should().Be(reqid);
+        response.result.user.username.Should().Be(userid);
+        response.result.user.firstname.Should().Be("first");
+        response.result.user.lastname.Should().Be("last");
+        response.result.user.email.Should().Be("bbb@example.com");
+        response.result.user.active.Should().Be(true);
+        response.result.user.admin.Should().Be(false);
     }
 
     [TestMethod()]
@@ -161,9 +147,11 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var userid = "aaa";
-        await using var testuser = await client.CreateTestUserAsync(new(userid, "aaa@example.com", "first", "last"));
+        var testuser = await resources.CreateTestUserAsync(new(userid, "aaa@example.com", "first", "last"));
 
         var response = await client.UpdateUserAsync(new(userid), id: reqid);
         response.id.Should().Be(reqid);
@@ -181,14 +169,16 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var userid = "aaa";
-        await using var testuser = await client.CreateTestUserAsync(new(userid, "aaa@example.com", "first", "last"));
+        var testuser = await resources.CreateTestUserAsync(new(userid, "aaa@example.com", "first", "last"));
 
         var response = await client.UpdateUserAsync(new(userid, userid + "2", "asd@example.com", "new-first", "new-last", "new-pass", active: false, admin: false), id: reqid);
         response.id.Should().Be(reqid);
         response.result.msg.Should().NotBeNullOrEmpty();
-        response.result.user.user_id.Should().Be(testuser.Entity.user_id);
+        response.result.user.user_id.Should().Be(testuser.user_id);
         response.result.user.username.Should().Be(userid + "2");
         response.result.user.firstname.Should().Be("new-first");
         response.result.user.lastname.Should().Be("new-last");
@@ -202,9 +192,11 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var userid = "aaa";
-        var testuser = (await client.CreateUserAsync(new(userid, "aaa@example.com", "first", "last"))).result.user;
+        var testuser = await resources.CreateTestUserAsync(new(userid, "aaa@example.com", "first", "last"));
 
         var response = await client.DeleteUserAsync(new(userid), id: reqid);
         response.id.Should().Be(reqid);
@@ -249,24 +241,18 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var group_name = "test";
-
-        var response = await client.CreateUserGroupAsync(new(group_name), id: reqid);
-        try
-        {
-            response.id.Should().Be(reqid);
-            response.result.msg.Should().NotBeNullOrEmpty();
-            response.result.user_group.group_name.Should().Be(group_name);
-            response.result.user_group.group_description.Should().BeNullOrEmpty();
-            response.result.user_group.active.Should().Be(true);
-            response.result.user_group.owner.Should().Be("admin");
-            response.result.user_group.members.Should().BeEmpty();
-        }
-        finally
-        {
-            await client.DeleteUserGroupAsync(new(group_name));
-        }
+        var response = await client.CreateUserGroupAsync(new(group_name), id: reqid).WillBeDiscarded(resources);
+        response.id.Should().Be(reqid);
+        response.result.msg.Should().NotBeNullOrEmpty();
+        response.result.user_group.group_name.Should().Be(group_name);
+        response.result.user_group.group_description.Should().BeNullOrEmpty();
+        response.result.user_group.active.Should().Be(true);
+        response.result.user_group.owner.Should().Be("admin");
+        response.result.user_group.members.Should().BeEmpty();
     }
 
     [TestMethod()]
@@ -274,24 +260,18 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var group_name = "test";
-
-        var response = await client.CreateUserGroupAsync(new(group_name, "desc-text", "foo", false), id: reqid);
-        try
-        {
-            response.id.Should().Be(reqid);
-            response.result.msg.Should().NotBeNullOrEmpty();
-            response.result.user_group.group_name.Should().Be(group_name);
-            response.result.user_group.group_description.Should().Be("desc-text");
-            response.result.user_group.active.Should().Be(false);
-            response.result.user_group.owner.Should().Be("foo");
-            response.result.user_group.members.Should().BeEmpty();
-        }
-        finally
-        {
-            await client.DeleteUserGroupAsync(new(group_name));
-        }
+        var response = await client.CreateUserGroupAsync(new(group_name, "desc-text", "foo", false), id: reqid).WillBeDiscarded(resources);
+        response.id.Should().Be(reqid);
+        response.result.msg.Should().NotBeNullOrEmpty();
+        response.result.user_group.group_name.Should().Be(group_name);
+        response.result.user_group.group_description.Should().Be("desc-text");
+        response.result.user_group.active.Should().Be(false);
+        response.result.user_group.owner.Should().Be("foo");
+        response.result.user_group.members.Should().BeEmpty();
     }
 
     [TestMethod()]
@@ -299,14 +279,16 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var group_name = "test";
-        await using var testusergroup = await client.CreateTestUserGroupAsync(new(group_name));
+        var testusergroup = await resources.CreateTestUserGroupAsync(new(group_name));
 
         var response = await client.UpdateUserGroupAsync(new(group_name), id: reqid);
         response.id.Should().Be(reqid);
         response.result.msg.Should().NotBeNullOrEmpty();
-        response.result.user_group.users_group_id.Should().Be(testusergroup.Entity.users_group_id);
+        response.result.user_group.users_group_id.Should().Be(testusergroup.users_group_id);
         response.result.user_group.group_name.Should().Be(group_name);
         response.result.user_group.group_description.Should().BeNullOrEmpty();
         response.result.user_group.active.Should().Be(true);
@@ -319,14 +301,16 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var group_name = "test";
-        await using var testusergroup = await client.CreateTestUserGroupAsync(new(group_name));
+        var testusergroup = await resources.CreateTestUserGroupAsync(new(group_name));
 
         var response = await client.UpdateUserGroupAsync(new(group_name, "new-name", "new-desc", "bar", false), id: reqid);
         response.id.Should().Be(reqid);
         response.result.msg.Should().NotBeNullOrEmpty();
-        response.result.user_group.users_group_id.Should().Be(testusergroup.Entity.users_group_id);
+        response.result.user_group.users_group_id.Should().Be(testusergroup.users_group_id);
         response.result.user_group.group_name.Should().Be("new-name");
         response.result.user_group.group_description.Should().Be("new-desc");
         response.result.user_group.active.Should().Be(false);
@@ -353,9 +337,11 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var group_name = "test";
-        await using var testusergroup = await client.CreateTestUserGroupAsync(new(group_name));
+        var testusergroup = await resources.CreateTestUserGroupAsync(new(group_name));
 
         var response = await client.AddUserToUserGroupAsync(new(group_name, "foo"), id: reqid);
         response.id.Should().Be(reqid);
@@ -371,9 +357,11 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var group_name = "test";
-        await using var testusergroup = await client.CreateTestUserGroupAsync(new(group_name));
+        var testusergroup = await resources.CreateTestUserGroupAsync(new(group_name));
         await client.AddUserToUserGroupAsync(new(group_name, "foo"));
         (await client.GetUserGroupAsync(new(group_name), id: reqid)).result.user_group.members.Should().Satisfy(u => u.username == "foo");
 
@@ -539,7 +527,6 @@ public class KallitheaClientTests
 
         var reqid = "abcd";
         var repo_name = "share/test_repo";
-
         var response = await client.CreateRepoAsync(new(repo_name), id: reqid);
         try
         {
@@ -604,9 +591,11 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var repoid = "share/test_repo";
-        await using var testuser = await client.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
+        var testrepo = await resources.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
 
         var response = await client.UpdateRepoAsync(new(repoid), id: reqid);
         response.id.Should().Be(reqid);
@@ -627,9 +616,11 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var repoid = "share/test_repo";
-        await using var testuser = await client.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
+        var restrepo = await resources.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
 
         var response = await client.UpdateRepoAsync(new(repoid, "test_ren", owner: "bar", description: "new-desc", @private: true, enable_downloads: true, enable_statistics: true), id: reqid);
         response.id.Should().Be(reqid);
@@ -788,9 +779,11 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var repoid = $"share/test_repo_{DateTime.Now:yyyyMMdd_HHmmss}";
-        await using var testuser = await client.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
+        var restrepo = await resources.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
 
         var response = await client.GrantUserPermToRepoAsync(new(repoid, "bar", RepoPerm.admin), id: reqid);
         response.id.Should().Be(reqid);
@@ -811,9 +804,11 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var repoid = "share/test_repo";
-        await using var testuser = await client.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
+        var restrepo = await resources.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
         await client.GrantUserPermToRepoAsync(new(repoid, "bar", RepoPerm.admin));
 
         var response = await client.RevokeUserPermFromRepoAsync(new(repoid, "default"), id: reqid);
@@ -834,9 +829,11 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var repoid = "share/test_repo";
-        await using var testuser = await client.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
+        var testrepo = await resources.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
 
         var response = await client.GrantUserGroupPermToRepoAsync(new(repoid, "all", RepoPerm.read), id: reqid);
         response.id.Should().Be(reqid);
@@ -856,9 +853,11 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var repoid = "share/test_repo";
-        await using var testuser = await client.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
+        var testrepo = await resources.CreateTestRepoAsync(new(repoid, owner: "foo", repo_type: RepoType.git));
         await client.GrantUserGroupPermToRepoAsync(new(repoid, "all", RepoPerm.read), id: reqid);
 
         var response = await client.RevokeUserGroupPermFromRepoAsync(new(repoid, "all"), id: reqid);
@@ -931,11 +930,12 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var parent = "share";
         var group = "poe";
-
-        await using var repogroup = await client.CreateTestRepoGroupAsync(new(group, parent: parent));
+        var repogroup = await resources.CreateTestRepoGroupAsync(new(group, parent: parent));
 
         var response = await client.UpdateRepoGroupAsync(new($"{parent}/{group}"), id: reqid);
         response.id.Should().Be(reqid);
@@ -951,10 +951,12 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var parent = "share";
         var group = "poe";
-        await using var repogroup = await client.CreateTestRepoGroupAsync(new(group, parent: parent));
+        var repogroup = await resources.CreateTestRepoGroupAsync(new(group, parent: parent));
 
         var response = await client.UpdateRepoGroupAsync(new($"{parent}/{group}", group_name: "new-poe", description: "new-desc"), id: reqid);
         response.id.Should().Be(reqid);
@@ -987,16 +989,18 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var parent = "share";
         var group = "poe";
-        await using var repogroup = await client.CreateTestRepoGroupAsync(new(group, parent: parent));
+        var repogroup = await resources.CreateTestRepoGroupAsync(new(group, parent: parent));
 
-        var response = await client.GrantUserPermToRepoGroupAsync(new(repogroup.Entity.group_name, "bar", RepoGroupPerm.admin), id: reqid);
+        var response = await client.GrantUserPermToRepoGroupAsync(new(repogroup.group_name, "bar", RepoGroupPerm.admin), id: reqid);
         response.id.Should().Be(reqid);
         response.result.msg.Should().NotBeNullOrEmpty();
 
-        (await client.GetRepoGroupAsync(new(repogroup.Entity.group_name), id: reqid)).result.members
+        (await client.GetRepoGroupAsync(new(repogroup.group_name), id: reqid)).result.members
             .Should().Contain(m => m.name == "bar" && m.type == MemberType.user && m.permission == RepoGroupPerm.admin.ToPermName());
 
     }
@@ -1006,17 +1010,19 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var parent = "share";
         var group = "poe";
-        await using var repogroup = await client.CreateTestRepoGroupAsync(new(group, parent: parent));
-        await client.GrantUserPermToRepoGroupAsync(new(repogroup.Entity.group_name, "foo", RepoGroupPerm.admin));
+        var repogroup = await resources.CreateTestRepoGroupAsync(new(group, parent: parent));
+        await client.GrantUserPermToRepoGroupAsync(new(repogroup.group_name, "foo", RepoGroupPerm.admin));
 
-        var response = await client.RevokeUserPermFromRepoGroupAsync(new(repogroup.Entity.group_name, "foo"), id: reqid);
+        var response = await client.RevokeUserPermFromRepoGroupAsync(new(repogroup.group_name, "foo"), id: reqid);
         response.id.Should().Be(reqid);
         response.result.msg.Should().NotBeNullOrEmpty();
 
-        (await client.GetRepoGroupAsync(new(repogroup.Entity.group_name), id: reqid)).result.members
+        (await client.GetRepoGroupAsync(new(repogroup.group_name), id: reqid)).result.members
             .Should().NotContain(m => m.name == "foo" && m.type == MemberType.user);
     }
 
@@ -1025,16 +1031,18 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var parent = "share";
         var group = "poe";
-        await using var repogroup = await client.CreateTestRepoGroupAsync(new(group, parent: parent));
+        var repogroup = await resources.CreateTestRepoGroupAsync(new(group, parent: parent));
 
-        var response = await client.GrantUserGroupPermToRepoGroupAsync(new(repogroup.Entity.group_name, "all", RepoGroupPerm.admin), id: reqid);
+        var response = await client.GrantUserGroupPermToRepoGroupAsync(new(repogroup.group_name, "all", RepoGroupPerm.admin), id: reqid);
         response.id.Should().Be(reqid);
         response.result.msg.Should().NotBeNullOrEmpty();
 
-        (await client.GetRepoGroupAsync(new(repogroup.Entity.group_name), id: reqid)).result.members
+        (await client.GetRepoGroupAsync(new(repogroup.group_name), id: reqid)).result.members
             .Should().Contain(m => m.name == "all" && m.type == MemberType.user_group && m.permission == RepoGroupPerm.admin.ToPermName());
     }
 
@@ -1043,17 +1051,19 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
+        await using var resources = new TestResourceContainer(client);
+
         var reqid = "abcd";
         var parent = "share";
         var group = "poe";
-        await using var repogroup = await client.CreateTestRepoGroupAsync(new(group, parent: parent));
-        await client.GrantUserGroupPermToRepoGroupAsync(new(repogroup.Entity.group_name, "all", RepoGroupPerm.admin));
+        var repogroup = await resources.CreateTestRepoGroupAsync(new(group, parent: parent));
+        await client.GrantUserGroupPermToRepoGroupAsync(new(repogroup.group_name, "all", RepoGroupPerm.admin));
 
-        var response = await client.RevokeUserGroupPermFromRepoGroupAsync(new(repogroup.Entity.group_name, "all"), id: reqid);
+        var response = await client.RevokeUserGroupPermFromRepoGroupAsync(new(repogroup.group_name, "all"), id: reqid);
         response.id.Should().Be(reqid);
         response.result.msg.Should().NotBeNullOrEmpty();
 
-        (await client.GetRepoGroupAsync(new(repogroup.Entity.group_name), id: reqid)).result.members
+        (await client.GetRepoGroupAsync(new(repogroup.group_name), id: reqid)).result.members
             .Should().NotContain(m => m.name == "all" && m.type == MemberType.user_group);
     }
 
@@ -1062,10 +1072,12 @@ public class KallitheaClientTests
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
-        var reqid = "abcd";
-        var gist = await client.CreateTestGistAsync(new(new() { { "aaa.cs", new GistContent("aaaaa", "csharp") } }, description: "gist-desc", gist_type: GistType.@private, owner: "foo", lifetime: 500));
+        await using var resources = new TestResourceContainer(client);
 
-        var response = await client.GetGistAsync(new(gist.Entity.gist_id.ToString()), id: reqid);
+        var reqid = "abcd";
+        var gist = await resources.CreateTestGistAsync(new(new() { { "aaa.cs", new GistContent("aaaaa", "csharp") } }, description: "gist-desc", gist_type: GistType.@private, owner: "foo", lifetime: 500));
+
+        var response = await client.GetGistAsync(new(gist.gist_id.ToString()), id: reqid);
         response.id.Should().Be(reqid);
         response.result.gist.type.Should().Be(GistType.@private.ToString());
         response.result.gist.access_id.Should().NotBeNullOrEmpty();
