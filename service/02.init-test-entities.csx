@@ -13,6 +13,7 @@ using AngleSharp;
 using AngleSharp.Html.Dom;
 using Dapper;
 using KallitheaApiClient;
+using KallitheaApiClient.Utils;
 using Lestaly;
 using LibGit2Sharp;
 
@@ -49,7 +50,7 @@ await Paved.RunAsync(async () =>
     // Perform initial settings using API.
     Console.WriteLine("Set up entities for testing.");
     var serviceBase = new Uri("http://localhost:9999");
-    using var client = new KallitheaClient(new(serviceBase, "/_admin/api"));
+    using var client = new SimpleKallitheaClient(new(serviceBase, "/_admin/api"));
     client.ApiKey = apiKey;
 
     await client.CreateUserAsync(new("foo", "foo@example.com", "foo", "foo", password: "foo123", extern_type: "internal"));
@@ -104,6 +105,68 @@ await Paved.RunAsync(async () =>
         context.AddTag(commit1.Sha, "tag1");
         context.AddTag(commit2.Sha, "tag2");
     });
+    using (var db = new SQLiteConnection(db_settings.ConnectionString))
+    {
+        var getuser = await client.GetUserAsync(new("foo"));
+        var getrepo = await client.GetRepoAsync(new("users/foo/repo1"));
+        var changesets = await client.GetChangesetsAsync(new($"{getrepo.repo.repo_id}"));
+        var changeset = await client.GetChangesetAsync(new(getrepo.repo.repo_name, changesets[0].summary.raw_id));
+
+        await db.OpenAsync();
+
+        var commentSql = $"""
+            insert into changeset_comments(repo_id, revision, line_no, f_path, user_id, text, created_on, modified_at)
+            values (@repo_id, @revision, @line_no, @f_path, @user_id, @text, @created_on, @modified_at) 
+        """;
+        var commentParams = new
+        {
+            repo_id = getrepo.repo.repo_id,
+            revision = changeset.summary.raw_id,
+            line_no = default(string),
+            f_path = default(string),
+            user_id = getuser.user.user_id,
+            text = default(string),
+            created_on = DateTime.Now,
+            modified_at = DateTime.Now,
+        };
+
+        await db.ExecuteAsync(
+            sql: commentSql,
+            param: commentParams with { line_no = null, f_path = null, text = $"test comment for {changeset.summary.message}", }
+        );
+        var comment_id = await db.ExecuteScalarAsync(
+            sql: @"select comment_id from changeset_comments where repo_id = @repo_id and user_id = @user_id and revision = @revision",
+            param: commentParams
+        );
+
+        var changefile = changeset.filelist.added.FirstOrDefault() ?? changeset.filelist.changed.FirstOrDefault();
+        await db.ExecuteAsync(
+            sql: commentSql,
+            param: commentParams with { line_no = "n1", f_path = changefile, text = $"test comment for {changefile}", }
+        );
+
+        var reviewSql = $"""
+            insert into changeset_statuses(repo_id, user_id, revision, status, changeset_comment_id, version, pull_request_id, modified_at)
+            values (@repo_id, @user_id, @revision, @status, @changeset_comment_id, @version, @pull_request_id, @modified_at) 
+        """;
+        var reviewParams = new
+        {
+            repo_id = getrepo.repo.repo_id,
+            user_id = getuser.user.user_id,
+            revision = changeset.summary.raw_id,
+            status = "under_review",
+            changeset_comment_id = comment_id,
+            version = 0,
+            pull_request_id = default(int?),
+            modified_at = DateTime.Now,
+        };
+        await db.ExecuteAsync(
+            sql: reviewSql,
+            param: reviewParams
+        );
+
+    }
+
     await client.InvalidateCacheAsync(new("users/foo/repo1"));
 
     makeDummyCommits(baseDir.RelativeDirectory("./repos/users/foo/repo3"), context =>
