@@ -212,7 +212,8 @@ public record Reviewer(string username);
 /// <param name="comment_id">コメントID</param>
 /// <param name="username">ユーザ名</param>
 /// <param name="text">コメント</param>
-public record Comment(long comment_id, string username, string text);
+/// <param name="created_on">作成日時</param>
+public record Comment(long comment_id, string username, string text, DateTime created_on);
 
 /// <summary>レビューステータス情報</summary>
 /// <param name="status">ステータス</param>
