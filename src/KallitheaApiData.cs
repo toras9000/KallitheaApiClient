@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 using KallitheaApiClient.Converters;
 
 namespace KallitheaApiClient;
@@ -124,6 +125,18 @@ public enum ForksTreatment
     /// <summary>削除</summary>
     delete,
 }
+
+/// <summary>プロパティ名と値</summary>
+/// <typeparam name="TValue">値の型</typeparam>
+/// <param name="name">プロパティ名</param>
+/// <param name="value">プロパティ値</param>
+public record struct PropertyValue<TValue>(string name, TValue value);
+
+/// <summary>プロパティ名と値のコレクション</summary>
+/// <typeparam name="TValue">プロパティ値の型</typeparam>
+[JsonConverter(typeof(PropertySetJsonConverterFactory))]
+public class PropertySet<TValue> : Collection<PropertyValue<TValue>> { }
+
 
 /// <summary>モジュール情報</summary>
 /// <param name="name">モジュール名</param>
