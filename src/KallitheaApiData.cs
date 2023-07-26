@@ -160,7 +160,7 @@ public record IpAddrInfo(string ip_addr, IpRange ip_range);
 /// <param name="repositories">リポジトリ権限</param>
 /// <param name="repositories_groups">リポジトリグループ権限</param>
 /// <param name="user_groups">ユーザグループ権限</param>
-public record UserPermissions(string[] global, Dictionary<string, RepoPerm> repositories, Dictionary<string, RepoGroupPerm> repositories_groups, Dictionary<string, UserGroupPerm> user_groups);
+public record UserPermissions(string[] global, PropertySet<RepoPerm> repositories, PropertySet<RepoGroupPerm> repositories_groups, PropertySet<UserGroupPerm> user_groups);
 
 /// <summary>ユーザ情報</summary>
 /// <param name="user_id">ユーザID</param>
@@ -280,7 +280,7 @@ public record RepoInfo(
 /// <param name="tags">タグ一覧</param>
 /// <param name="branches">ブランチ一覧</param>
 /// <param name="bookmarks">ブックマーク一覧</param>
-public record NamedRevs(Dictionary<string, string> tags, Dictionary<string, string> branches, Dictionary<string, string> bookmarks);
+public record NamedRevs(PropertySet<string> tags, PropertySet<string> branches, PropertySet<string> bookmarks);
 
 /// <summary>チェンジセット作者情報</summary>
 /// <param name="name">名前</param>
@@ -526,7 +526,7 @@ public record GistArgs(string gistid);
 /// <param name="owner">所有ユーザ</param>
 /// <param name="gist_type">公開種別</param>
 /// <param name="lifetime">有効期間。登録時点からの有効時間 [minutes]</param>
-public record CreateGistArgs(Dictionary<string, GistContent> files, string description = "", GistType gist_type = GistType.@public, string? owner = null, int? lifetime = null);
+public record CreateGistArgs(PropertySet<GistContent> files, string description = "", GistType gist_type = GistType.@public, string? owner = null, int? lifetime = null);
 
 /// <summary>リポジトリのチェンジセット一覧取得要求パラメータ</summary>
 /// <param name="repoid">リポジトリIDまたはリポジトリパス</param>

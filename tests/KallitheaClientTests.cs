@@ -84,8 +84,8 @@ public class KallitheaClientTests
         response.id.Should().Be(reqid);
         response.result.user.user_id.Should().Be(4);
         response.result.permissions.global.Should().NotBeEmpty();
-        response.result.permissions.repositories.Should().ContainKeys("users/bar/repo1", "users/bar/repo2");
-        response.result.permissions.repositories_groups.Should().ContainKeys("share", "users");
+        response.result.permissions.repositories.Select(i => i.name).Should().Contain(new[] { "users/bar/repo1", "users/bar/repo2", });
+        response.result.permissions.repositories_groups.Select(i => i.name).Should().Contain(new[] { "share", "users", });
     }
 
     [TestMethod()]
@@ -420,9 +420,9 @@ public class KallitheaClientTests
         response.id.Should().Be(reqid);
         response.result.revs.Should().NotBeNull();
         if (response.result.revs == null) return;
-        response.result.revs.branches.Should().ContainKeys("main", "br1", "br2");
-        response.result.revs.tags.Should().ContainKeys("tag1", "tag2");
-        response.result.revs.bookmarks.Should().BeNullOrEmpty();
+        response.result.revs.branches.Select(x => x.name).Should().Contain("main", "br1", "br2");
+        response.result.revs.tags.Select(x => x.name).Should().Contain("tag1", "tag2");
+        response.result.revs.bookmarks.Select(x => x.name).Should().BeNullOrEmpty();
     }
 
     [TestMethod()]
@@ -1075,7 +1075,7 @@ public class KallitheaClientTests
         await using var resources = new TestResourceContainer(client);
 
         var reqid = "abcd";
-        var gist = await resources.CreateTestGistAsync(new(new() { { "aaa.cs", new GistContent("aaaaa", "csharp") } }, description: "gist-desc", gist_type: GistType.@private, owner: "foo", lifetime: 500));
+        var gist = await resources.CreateTestGistAsync(new(new() { new("aaa.cs", new GistContent("aaaaa", "csharp")) }, description: "gist-desc", gist_type: GistType.@private, owner: "foo", lifetime: 500));
 
         var response = await client.GetGistAsync(new(gist.gist_id.ToString()), id: reqid);
         response.id.Should().Be(reqid);
@@ -1093,9 +1093,9 @@ public class KallitheaClientTests
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
         var reqid = "abcd";
-        var files = new Dictionary<string, GistContent>()
+        var files = new PropertySet<GistContent>()
         {
-            { "aaa.cs", new GistContent("aaaaa", "csharp") },
+            new("aaa.cs", new GistContent("aaaaa", "csharp")),
         };
 
         var response = await client.CreateGistAsync(new(files, description: "gist-desc", gist_type: GistType.@private, owner: "foo", lifetime: 500), id: reqid);
@@ -1122,10 +1122,10 @@ public class KallitheaClientTests
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
         var reqid = "abcd";
-        var files = new Dictionary<string, GistContent>()
+        var files = new PropertySet<GistContent>()
         {
-            { "aaa.cs", new GistContent("aaaaa", "csharp") },
-            { "bbb.cs", new GistContent("bbbbb", "csharp") },
+            new("aaa.cs", new GistContent("aaaaa", "csharp")),
+            new("bbb.cs", new GistContent("bbbbb", "csharp")),
         };
 
         var response = await client.CreateGistAsync(new(files, description: "gist-desc", gist_type: GistType.@public, owner: "bar", lifetime: 100), id: reqid);
