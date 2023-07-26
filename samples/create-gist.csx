@@ -1,4 +1,4 @@
-#r "nuget: KallitheaApiClient, 0.7.0.13"
+#r "nuget: KallitheaApiClient, 0.7.0.16"
 #r "nuget: Lestaly, 0.42.0"
 #nullable enable
 using KallitheaApiClient;
@@ -17,10 +17,10 @@ await Paved.RunAsync(async () =>
     using var client = new KallitheaClient(url, key);
 
     // Information to create a Gist 
-    var files = new Dictionary<string, GistContent>
+    var files = new PropertySet<GistContent>
     {
-        { "file1.txt", new GistContent("text\ncontent", "text") },
-        { "file2.cs",  new GistContent("using System;\n\nConsole.WriteLine(\"Hello World.\");", "csharp") },
+        new ("file1.txt", new GistContent("text\ncontent", "text")),
+        new ("file2.cs",  new GistContent("using System;\n\nConsole.WriteLine(\"Hello World.\");", "csharp")),
     };
     var lifetime = 10 * 24 * 60;  // 10 days [minutes]
 

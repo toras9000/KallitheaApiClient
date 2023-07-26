@@ -1,4 +1,4 @@
-#r "nuget: KallitheaApiClient, 0.7.0.13"
+#r "nuget: KallitheaApiClient, 0.7.0.16"
 #r "nuget: Lestaly, 0.42.0"
 #nullable enable
 using KallitheaApiClient;
@@ -24,9 +24,9 @@ await Paved.RunAsync(async () =>
     if (0 < user.permissions.repositories.Count)
     {
         Console.WriteLine($"  RepoPerms:");
-        foreach (var repoPerm in user.permissions.repositories.OrderBy(e => e.Key))
+        foreach (var repoPerm in user.permissions.repositories.OrderBy(e => e.name))
         {
-            Console.WriteLine($"  ->{repoPerm.Key}: repository.{repoPerm.Value}");
+            Console.WriteLine($"  ->{repoPerm.name}: {repoPerm.value.ToPermName()}");
         }
     }
     // Print a list of permissions to the repository group.
@@ -35,7 +35,7 @@ await Paved.RunAsync(async () =>
         Console.WriteLine($"  RepoGroupPerms:");
         foreach (var grpPerm in user.permissions.repositories_groups)
         {
-            Console.WriteLine($"  ->{grpPerm.Key}: repogroup.{grpPerm.Value}");
+            Console.WriteLine($"  ->{grpPerm.name}: {grpPerm.value.ToPermName()}");
         }
     }
 

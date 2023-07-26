@@ -1,4 +1,4 @@
-#r "nuget: KallitheaApiClient, 0.7.0.13"
+#r "nuget: KallitheaApiClient, 0.7.0.16"
 #r "nuget: Lestaly, 0.42.0"
 #nullable enable
 using KallitheaApiClient;
