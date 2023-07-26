@@ -5,7 +5,7 @@
 [NugetPackage]: https://www.nuget.org/packages/KallitheaApiClient
 [NugetShield]: https://img.shields.io/nuget/v/KallitheaApiClient
 
-This is [Kallithea](https://kallithea-scm.org/) API client library for .NET.  
+This is [Kallithea](https://kallithea-scm.org/) API client library for .NET. (unofficial)  
 Kallithea is a self-hosted repository hosting WEB application.  
 
 It's a relatively simple mapper to the API's JSON interface, so it should be easy to match with the Kallithea [API documentation](https://kallithea.readthedocs.io/en/latest/api/api.html).  
