@@ -219,7 +219,9 @@ public class KallitheaClient : IDisposable
         var followers = rsp.result.GetProperty(nameof(GetRepoResult.followers)).Deserialize<UserInfo[]>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.followers)}");
         var revs = rsp.result.Deserialize<NamedRevs>();
         var pull_req = rsp.result.TryGetProperty(nameof(GetRepoResult.pull_requests), out var prop_preq) ? prop_preq.Deserialize<PullRequest[]>() : null;
-        return new ApiResponse<GetRepoResult>(rsp.id, new(repo, members, followers, revs, pull_req));
+        const string ExtraFieldPrefix = "ex_";
+        var fields = rsp.result.EnumerateObject().Where(p => p.Name.StartsWith(ExtraFieldPrefix)).Select(p => new ExtraField(p.Name[ExtraFieldPrefix.Length..], p.Value.GetString()!)).ToArray();
+        return new ApiResponse<GetRepoResult>(rsp.id, new(repo, members, followers, revs, pull_req, 0 < fields.Length ? fields : default));
     }
 
     /// <summary>リポジトリの一覧を取得する。</summary>

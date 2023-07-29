@@ -441,6 +441,19 @@ public class KallitheaClientTests
     }
 
     [TestMethod()]
+    public async Task GetRepoAsync_Fields()
+    {
+        using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
+
+        var repoid = "users/foo/repo3";
+
+        var response = await client.GetRepoAsync(new(repoid));
+        response.result.revs.Should().NotBeNull();
+        response.result.ex_fields.Should().Contain(new ExtraField("testkey1", "testvalue1"));
+        response.result.ex_fields.Should().Contain(new ExtraField("testkey2", "testvalue2"));
+    }
+
+    [TestMethod()]
     public async Task GetReposAsync()
     {
         using var client = new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);

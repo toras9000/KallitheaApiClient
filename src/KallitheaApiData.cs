@@ -276,6 +276,11 @@ public record RepoInfo(
     bool enable_downloads, bool enable_statistics, ChangesetSummary last_changeset
 );
 
+/// <summary>リポジトリ拡張フィールド情報</summary>
+/// <param name="key">拡張フィールドキー</param>
+/// <param name="value">拡張フィールド値</param>
+public record ExtraField(string key, string value);
+
 /// <summary>名前付きリビジョン情報</summary>
 /// <param name="tags">タグ一覧</param>
 /// <param name="branches">ブランチ一覧</param>
@@ -655,7 +660,8 @@ public record RemoveUserToUserGroupResult(bool success, string msg);
 /// <param name="followers">フォロワーユーザ</param>
 /// <param name="revs">名前付きリビジョン情報(リビジョン情報取得が有効時)</param>
 /// <param name="pull_requests">プルリクエスト一覧(プルリクエスト情報取得が有効時)</param>
-public record GetRepoResult(RepoInfo repo, Member[] members, UserInfo[] followers, NamedRevs? revs, PullRequest[]? pull_requests);
+/// <param name="ex_fields">拡張フィールド(拡張フィールドが設定されている時)</param>
+public record GetRepoResult(RepoInfo repo, Member[] members, UserInfo[] followers, NamedRevs? revs, PullRequest[]? pull_requests, ExtraField[]? ex_fields);
 
 /// <summary>リポジトリ一覧取得要求 応答情報</summary>
 /// <param name="repos">リポジトリ一覧</param>
