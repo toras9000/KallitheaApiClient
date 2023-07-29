@@ -97,9 +97,9 @@ await Paved.RunAsync(async () =>
     makeDummyCommits(baseDir.RelativeDirectory("./repos/users/foo/repo1"), context =>
     {
         var author = new Author("foo", "foo@example.com");
-        var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("aaa.txt", "aaa"), new("bbb.txt", "bbb"), });
-        var commit2 = context.AddCommit("commit 2", author, new FileBlob[] { new("aaa.txt", "aAa"), new("ccc.txt", "ccc"), });
-        var commit3 = context.AddCommit("commit 3", author, new FileBlob[] { new("bbb.txt", null), new("ddd.txt", "ddd"), });
+        var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("aaa.txt", "aaa\naaa"), new("bbb.txt", "bbb\nbbb"), });
+        var commit2 = context.AddCommit("commit 2", author, new FileBlob[] { new("aaa.txt", "aAa\nAaA"), new("ccc.txt", "ccc\nccc"), });
+        var commit3 = context.AddCommit("commit 3", author, new FileBlob[] { new("bbb.txt", null), new("ddd.txt", "ddd\nddd"), });
         context.AddBranch(commit1, "br1");
         context.AddBranch(commit2, "br2");
         context.AddTag(commit1.Sha, "tag1");
@@ -114,10 +114,6 @@ await Paved.RunAsync(async () =>
 
         await db.OpenAsync();
 
-        var commentSql = $"""
-            insert into changeset_comments(repo_id, revision, line_no, f_path, user_id, text, created_on, modified_at)
-            values (@repo_id, @revision, @line_no, @f_path, @user_id, @text, @created_on, @modified_at) 
-        """;
         var commentParams = new
         {
             repo_id = getrepo.repo.repo_id,
@@ -126,47 +122,59 @@ await Paved.RunAsync(async () =>
             f_path = default(string),
             user_id = getuser.user.user_id,
             text = default(string),
-            created_on = DateTime.Now,
-            modified_at = DateTime.Now,
         };
-
+        var commentSql = $"""
+            insert into changeset_comments (repo_id, revision, line_no, f_path, user_id, text, created_on, modified_at)
+            values (@{nameof(commentParams.repo_id)}, @{nameof(commentParams.revision)}, @{nameof(commentParams.line_no)}, @{nameof(commentParams.f_path)},
+                    @{nameof(commentParams.user_id)}, @{nameof(commentParams.text)}, datetime('now', 'localtime'), datetime('now', 'localtime'))
+        """;
+        // commit comments
         await db.ExecuteAsync(
             sql: commentSql,
-            param: commentParams with { line_no = null, f_path = null, text = $"test comment for {changeset.summary.message}", }
+            param: commentParams with { line_no = null, f_path = null, text = $"test comment for {changeset.summary.message} (1)", }
+        );
+        await db.ExecuteAsync(
+            sql: commentSql,
+            param: commentParams with { line_no = null, f_path = null, text = $"test comment for {changeset.summary.message} (2)", }
         );
         var comment_id = await db.ExecuteScalarAsync(
             sql: @"select comment_id from changeset_comments where repo_id = @repo_id and user_id = @user_id and revision = @revision",
             param: commentParams
         );
 
+        // inline comments
         var changefile = changeset.filelist.added.FirstOrDefault() ?? changeset.filelist.changed.FirstOrDefault();
         await db.ExecuteAsync(
             sql: commentSql,
-            param: commentParams with { line_no = "n1", f_path = changefile, text = $"test comment for {changefile}", }
+            param: commentParams with { line_no = "n1", f_path = changefile, text = $"test comment for {changefile} line1", }
+        );
+        await db.ExecuteAsync(
+            sql: commentSql,
+            param: commentParams with { line_no = "n2", f_path = changefile, text = $"test comment for {changefile} line2", }
         );
 
-        var reviewSql = $"""
-            insert into changeset_statuses(repo_id, user_id, revision, status, changeset_comment_id, version, pull_request_id, modified_at)
-            values (@repo_id, @user_id, @revision, @status, @changeset_comment_id, @version, @pull_request_id, @modified_at) 
-        """;
+        // reviews
         var reviewParams = new
         {
             repo_id = getrepo.repo.repo_id,
             user_id = getuser.user.user_id,
             revision = changeset.summary.raw_id,
             status = "under_review",
-            changeset_comment_id = comment_id,
+            comment_id = comment_id,
             version = 0,
             pull_request_id = default(int?),
-            modified_at = DateTime.Now,
         };
+        var reviewSql = $"""
+            insert into changeset_statuses(repo_id, user_id, revision, status, changeset_comment_id, version, pull_request_id, modified_at)
+            values (@{nameof(reviewParams.repo_id)}, @{nameof(reviewParams.user_id)}, @{nameof(reviewParams.revision)},
+                    @{nameof(reviewParams.status)}, @{nameof(reviewParams.comment_id)}, @{nameof(reviewParams.version)},
+                    @{nameof(reviewParams.pull_request_id)}, datetime('now', 'localtime'))
+        """;
         await db.ExecuteAsync(
             sql: reviewSql,
             param: reviewParams
         );
-
     }
-
     await client.InvalidateCacheAsync(new("users/foo/repo1"));
 
     makeDummyCommits(baseDir.RelativeDirectory("./repos/users/foo/repo3"), context =>
@@ -176,7 +184,45 @@ await Paved.RunAsync(async () =>
         var commit2 = context.AddCommit("commit 2", author, new FileBlob[] { new("b.txt", null) });
         var commit3 = context.AddCommit("commit 3", author, new FileBlob[] { new("xxx/b.txt", "xB"), new("xxx/c.txt", "xC"), new("yyy/a.txt", "yA"), new("c.txt", "C") });
     });
-    await client.InvalidateCacheAsync(new("users/foo/repo1"));
+    using (var db = new SQLiteConnection(db_settings.ConnectionString))
+    {
+        var getrepo = await client.GetRepoAsync(new("users/foo/repo3"));
+
+        await db.OpenAsync();
+
+        var field_setting = await db.ExecuteScalarAsync($"select app_settings_id from settings where app_settings_name = 'repository_fields'");
+        if (field_setting == null)
+        {
+            await db.ExecuteAsync("insert into settings(app_settings_name, app_settings_value, app_settings_type) values ('repository_fields', 'True', 'bool')");
+        }
+        else
+        {
+            await db.ExecuteAsync($"update settings set app_settings_value = 'True' where app_settings_name = 'repository_fields'");
+        }
+
+        var fieldParams = new
+        {
+            repo_id = getrepo.repo.repo_id,
+            key = default(string),
+            label = default(string),
+            desc = default(string),
+            value = default(string),
+        };
+        var fieldSql = $"""
+            insert into repositories_fields (repository_id, field_key, field_label, field_desc, field_value, field_type, created_on)
+            values (@{nameof(fieldParams.repo_id)}, @{nameof(fieldParams.key)}, @{nameof(fieldParams.label)}, @{nameof(fieldParams.desc)},
+                    @{nameof(fieldParams.value)}, 'str', datetime('now', 'localtime'))
+        """;
+        await db.ExecuteAsync(
+            sql: fieldSql,
+            param: fieldParams with { key = "testkey1", label = "testlabel1", desc = "testdesc1", value = "testvalue1", }
+        );
+        await db.ExecuteAsync(
+            sql: fieldSql,
+            param: fieldParams with { key = "testkey2", label = "testlabel2", desc = "testdesc2", value = "testvalue2", }
+        );
+    }
+    await client.InvalidateCacheAsync(new("users/foo/repo3"));
 
     makeDummyCommits(baseDir.RelativeDirectory("./repos/users/bar/repo1"), context =>
     {
