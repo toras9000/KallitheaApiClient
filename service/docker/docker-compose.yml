@@ -17,3 +17,5 @@ services:
       - KALLITHEA_ADMIN_PASS=admin123
       - KALLITHEA_ADMIN_MAIL=admin@example.com
       - KALLITHEA_LOCALE=ja_JP.UTF-8
+      - KALLITHEA_OVERRIDE_DIR=/kallithea/assets/override
+      - KALLITHEA_PATCH_DIR=/kallithea/assets/patches
