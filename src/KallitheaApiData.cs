@@ -281,6 +281,16 @@ public record RepoInfo(
 /// <param name="value">拡張フィールド値</param>
 public record ExtraField(string key, string value);
 
+/// <summary>リポジトリ拡張情報</summary>
+/// <param name="repo">リポジトリ情報</param>
+/// <param name="ex_fields">拡張フィールド(拡張フィールドが設定されている時)</param>
+[JsonConverter(typeof(RepoInfoExJsonConverter))]
+public record RepoInfoEx(RepoInfo repo, ExtraField[]? ex_fields) : RepoInfo(repo)
+{
+    /// <summary>基底メンバの初期化用に使う</summary>
+    protected RepoInfo repo { get; } = repo;
+}
+
 /// <summary>名前付きリビジョン情報</summary>
 /// <param name="tags">タグ一覧</param>
 /// <param name="branches">ブランチ一覧</param>
