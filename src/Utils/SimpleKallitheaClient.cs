@@ -197,14 +197,14 @@ public class SimpleKallitheaClient : IDisposable
     /// <param name="args">要求パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>結果取得タスク</returns>
-    public Task<RepoInfo> GetRepoInfoAsync(GetRepoArgs args, CancellationToken cancelToken = default)
+    public Task<RepoInfoEx> GetRepoInfoAsync(GetRepoArgs args, CancellationToken cancelToken = default)
         => this.client.GetRepoAsync(args, takeId(), cancelToken).ConvertResponse(r => r.repo);
 
     /// <summary>リポジトリの一覧を取得する。</summary>
     /// <remarks>リポジトリの読み取り権限を持つキーで実行可能。</remarks>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>結果取得タスク</returns>
-    public Task<RepoInfo[]> GetReposAsync(CancellationToken cancelToken = default)
+    public Task<RepoInfoEx[]> GetReposAsync(CancellationToken cancelToken = default)
         => this.client.GetReposAsync(takeId(), cancelToken).ConvertResponse(r => r.repos);
 
     /// <summary>リポジトリのリビジョンに含まれるノード情報を取得する。</summary>
@@ -228,7 +228,7 @@ public class SimpleKallitheaClient : IDisposable
     /// <param name="args">要求パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>結果取得タスク</returns>
-    public Task<RepoInfo> UpdateRepoAsync(UpdateRepoArgs args, CancellationToken cancelToken = default)
+    public Task<RepoInfoEx> UpdateRepoAsync(UpdateRepoArgs args, CancellationToken cancelToken = default)
         => this.client.UpdateRepoAsync(args, takeId(), cancelToken).ConvertResponse(r => r.repository);
 
     /// <summary>リポジトリをフォークする。</summary>

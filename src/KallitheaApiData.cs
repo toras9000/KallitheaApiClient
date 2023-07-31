@@ -670,12 +670,11 @@ public record RemoveUserToUserGroupResult(bool success, string msg);
 /// <param name="followers">フォロワーユーザ</param>
 /// <param name="revs">名前付きリビジョン情報(リビジョン情報取得が有効時)</param>
 /// <param name="pull_requests">プルリクエスト一覧(プルリクエスト情報取得が有効時)</param>
-/// <param name="ex_fields">拡張フィールド(拡張フィールドが設定されている時)</param>
-public record GetRepoResult(RepoInfo repo, Member[] members, UserInfo[] followers, NamedRevs? revs, PullRequest[]? pull_requests, ExtraField[]? ex_fields);
+public record GetRepoResult(RepoInfoEx repo, Member[] members, UserInfo[] followers, NamedRevs? revs, PullRequest[]? pull_requests);
 
 /// <summary>リポジトリ一覧取得要求 応答情報</summary>
 /// <param name="repos">リポジトリ一覧</param>
-public record GetReposResult(RepoInfo[] repos);
+public record GetReposResult(RepoInfoEx[] repos);
 
 /// <summary>リポジトリリビジョン内のノード一覧取得要求 応答情報</summary>
 /// <param name="nodes">ノード一覧</param>
@@ -689,7 +688,7 @@ public record CreateRepoResult(string msg, bool success);
 /// <summary>リポジトリ更新要求 応答情報</summary>
 /// <param name="msg">メッセージ</param>
 /// <param name="repository">リポジトリ情報</param>
-public record UpdateRepoResult(string msg, RepoInfo repository);
+public record UpdateRepoResult(string msg, RepoInfoEx repository);
 
 /// <summary>リポジトリフォーク要求 応答情報</summary>
 /// <param name="msg">メッセージ</param>

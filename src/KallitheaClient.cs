@@ -214,14 +214,12 @@ public class KallitheaClient : IDisposable
     public async Task<ApiResponse<GetRepoResult>> GetRepoAsync(GetRepoArgs args, string? id = null, CancellationToken cancelToken = default)
     {
         var rsp = await createContext(id, "get_repo", args).PostAsync<JsonElement>(cancelToken).ConfigureAwait(false);
-        var repo = rsp.result.Deserialize<RepoInfo>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.repo)}");
+        var repo = rsp.result.Deserialize<RepoInfoEx>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.repo)}");
         var members = rsp.result.GetProperty(nameof(GetRepoResult.members)).Deserialize<Member[]>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.members)}");
         var followers = rsp.result.GetProperty(nameof(GetRepoResult.followers)).Deserialize<UserInfo[]>() ?? throw new UnexpectedResultException(rsp.id, $"{nameof(GetRepoResult)}.{nameof(GetRepoResult.followers)}");
         var revs = rsp.result.Deserialize<NamedRevs>();
         var pull_req = rsp.result.TryGetProperty(nameof(GetRepoResult.pull_requests), out var prop_preq) ? prop_preq.Deserialize<PullRequest[]>() : null;
-        const string ExtraFieldPrefix = "ex_";
-        var fields = rsp.result.EnumerateObject().Where(p => p.Name.StartsWith(ExtraFieldPrefix)).Select(p => new ExtraField(p.Name[ExtraFieldPrefix.Length..], p.Value.GetString()!)).ToArray();
-        return new ApiResponse<GetRepoResult>(rsp.id, new(repo, members, followers, revs, pull_req, 0 < fields.Length ? fields : default));
+        return new ApiResponse<GetRepoResult>(rsp.id, new(repo, members, followers, revs, pull_req));
     }
 
     /// <summary>リポジトリの一覧を取得する。</summary>
@@ -231,7 +229,7 @@ public class KallitheaClient : IDisposable
     /// <returns>レスポンス取得タスク</returns>
     public async Task<ApiResponse<GetReposResult>> GetReposAsync(string? id = null, CancellationToken cancelToken = default)
     {
-        var rsp = await createContext(id, "get_repos", default(object)).PostAsync<RepoInfo[]>(cancelToken).ConfigureAwait(false);
+        var rsp = await createContext(id, "get_repos", default(object)).PostAsync<RepoInfoEx[]>(cancelToken).ConfigureAwait(false);
         return new ApiResponse<GetReposResult>(rsp.id, new(rsp.result));
     }
 

@@ -449,8 +449,8 @@ public class KallitheaClientTests
 
         var response = await client.GetRepoAsync(new(repoid));
         response.result.revs.Should().NotBeNull();
-        response.result.ex_fields.Should().Contain(new ExtraField("testkey1", "testvalue1"));
-        response.result.ex_fields.Should().Contain(new ExtraField("testkey2", "testvalue2"));
+        response.result.repo.ex_fields.Should().Contain(new ExtraField("testkey1", "testvalue1"));
+        response.result.repo.ex_fields.Should().Contain(new ExtraField("testkey2", "testvalue2"));
     }
 
     [TestMethod()]
