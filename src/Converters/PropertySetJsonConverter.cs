@@ -36,9 +36,13 @@ public class PropertySetJsonConverter<TValue> : JsonConverter<PropertySet<TValue
         var list = new PropertySet<TValue>();
         while (reader.TokenType != JsonTokenType.EndObject)
         {
-            // プロパティ名を読み取り
+            // このコンテキストはプロパティ名であるはず
             if (reader.TokenType != JsonTokenType.PropertyName) throw new JsonException();
+
+            // プロパティ名を読み取り
             var key = reader.GetString() ?? throw new JsonException();
+
+            // プロパティ値へ読み進める
             if (!reader.Read()) throw new JsonException();
 
             // 値の読み取り
@@ -46,6 +50,8 @@ public class PropertySetJsonConverter<TValue> : JsonConverter<PropertySet<TValue
             var value = converter == null ? JsonSerializer.Deserialize<TValue>(ref reader)
                       : converter.Read(ref reader, typeof(TValue), options);
             if (value == null) throw new JsonException();
+
+            // 次のプロパティに読み進める
             if (!reader.Read()) throw new JsonException();
 
             // 保持

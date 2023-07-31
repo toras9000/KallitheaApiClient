@@ -28,11 +28,11 @@ public class PropertySetJsonConverterTests
     public void Read_ModuleInfoValue()
     {
         var json = """
-            {
-                "xyz": [ "name1", "value1" ],
-                "abc": [ "name2", "value2" ],
-                "123": [ "name3", "value3" ]
-            }
+        {
+            "xyz": [ "name1", "value1" ],
+            "abc": [ "name2", "value2" ],
+            "123": [ "name3", "value3" ]
+        }
         """;
         var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
         reader.Read();
@@ -43,6 +43,30 @@ public class PropertySetJsonConverterTests
             new("xyz", new("name1", "value1")),
             new("abc", new("name2", "value2")),
             new("123", new("name3", "value3")),
+        });
+    }
+
+    private record TestObject(long id, string name, RepoType type);
+
+    [TestMethod()]
+    public void Read_TestObject()
+    {
+        var json = """
+        {
+            "xyz": { "id": 1, "name": "name1", "type": "git" },
+            "abc": { "id": 2, "name": "name2", "type": "hg" },
+            "123": { "id": 3, "name": "name3", "type": "git" }
+        }
+        """;
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
+        reader.Read();
+        var converter = new PropertySetJsonConverter<TestObject>();
+        var properties = converter.Read(ref reader, typeof(PropertySet<TestObject>), JsonSerializerOptions.Default);
+        properties.Should().Equal(new PropertyValue<TestObject>[]
+        {
+            new("xyz", new(1, "name1", RepoType.git)),
+            new("abc", new(2, "name2", RepoType.hg)),
+            new("123", new(3, "name3", RepoType.git)),
         });
     }
 
