@@ -11,11 +11,13 @@ KALLITEHA_INSTALL_DIR=$PYTHON_PACKAGES/kallithea
 
 # overwrite files
 if [ -d "$KALLITHEA_OVERRIDE_DIR/kallithea" ]; then
-    cp -RT "$KALLITHEA_PATCH_DIR/kallithea"  "$KALLITEHA_INSTALL_DIR"
+    echo "Copy override files..."
+    cp -v -RT "$KALLITHEA_OVERRIDE_DIR/kallithea"  "$KALLITEHA_INSTALL_DIR"
 fi
 
 # patch files
 if [ -d "$KALLITHEA_PATCH_DIR" ]; then
+    echo "Apply patches..."
     git -C "$KALLITEHA_INSTALL_DIR" apply --reject --whitespace=fix -p2 $KALLITHEA_PATCH_DIR/*
 fi
 
