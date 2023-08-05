@@ -8,8 +8,8 @@ services:
       - "9999:5000"
       - "2222:22"
     volumes:
-      - ./config:/kallithea/config
-      - ./repos:/kallithea/repos
+      - ./data/config:/kallithea/config
+      - ./data/repos:/kallithea/repos
       - ./assets:/kallithea/assets
     environment:
       - TZ=Asia/Tokyo

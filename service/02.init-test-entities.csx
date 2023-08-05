@@ -1,13 +1,10 @@
-// This script is meant to run with dotnet-script.
-// You can install .NET SDK 6.0 and install dotnet-script with the following command.
-// $ dotnet tool install -g dotnet-script
-
 #r "nuget: System.Data.SQLite.Core, 1.0.118"
 #r "nuget: Dapper, 2.0.123"
 #r "nuget: LibGit2Sharp, 0.27.2"
 #r "nuget: AngleSharp, 1.0.4"
-#r "nuget: KallitheaApiClient, 0.7.0.16"
-#r "nuget: Lestaly, 0.42.0"
+#r "nuget: KallitheaApiClient, 0.7.0.20"
+#r "nuget: Lestaly, 0.43.0"
+#nullable enable
 using System.Data.SQLite;
 using AngleSharp;
 using AngleSharp.Html.Dom;
@@ -17,16 +14,21 @@ using KallitheaApiClient.Utils;
 using Lestaly;
 using LibGit2Sharp;
 
+// This script is meant to run with dotnet-script (v1.4 or lator).
+// You can install .NET SDK 7.0 and install dotnet-script with the following command.
+// $ dotnet tool install -g dotnet-script
+
 await Paved.RunAsync(async () =>
 {
     var baseDir = ThisSource.RelativeDirectory("./docker");
+    var dataDir = baseDir.RelativeDirectory("data");
 
     // API key to set up.
     var apiKey = "1111222233334444555566667777888899990000";
 
     // Connection settings for kallithea db.
     var db_settings = new SQLiteConnectionStringBuilder();
-    db_settings.DataSource = baseDir.RelativeFile("./config/kallithea.db").FullName;
+    db_settings.DataSource = dataDir.RelativeFile("./config/kallithea.db").FullName;
     db_settings.FailIfMissing = true;
 
     // Connect to db and state check.
@@ -94,7 +96,7 @@ await Paved.RunAsync(async () =>
     await client.GrantUserPermToRepoGroupAsync(new("users/bar", "foo", RepoGroupPerm.write));
     await client.GrantUserGroupPermToRepoGroupAsync(new("users/bar", "tester", RepoGroupPerm.read));
 
-    makeDummyCommits(baseDir.RelativeDirectory("./repos/users/foo/repo1"), context =>
+    makeDummyCommits(dataDir.RelativeDirectory("./repos/users/foo/repo1"), context =>
     {
         var author = new Author("foo", "foo@example.com");
         var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("aaa.txt", "aaa\naaa"), new("bbb.txt", "bbb\nbbb"), });
@@ -177,7 +179,7 @@ await Paved.RunAsync(async () =>
     }
     await client.InvalidateCacheAsync(new("users/foo/repo1"));
 
-    makeDummyCommits(baseDir.RelativeDirectory("./repos/users/foo/repo3"), context =>
+    makeDummyCommits(dataDir.RelativeDirectory("./repos/users/foo/repo3"), context =>
     {
         var author = new Author("foo", "foo@example.com");
         var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("xxx/a.txt", "xA"), new("a.txt", "A"), new("b.txt", "B") });
@@ -224,7 +226,7 @@ await Paved.RunAsync(async () =>
     }
     await client.InvalidateCacheAsync(new("users/foo/repo3"));
 
-    makeDummyCommits(baseDir.RelativeDirectory("./repos/users/bar/repo1"), context =>
+    makeDummyCommits(dataDir.RelativeDirectory("./repos/users/bar/repo1"), context =>
     {
         var author = new Author("bar", "bar@example.com");
         var commit1 = context.AddCommit("commit 1", author, new FileBlob[] { new("aaa.txt", "aaa"), new("bbb.txt", "bbb"), });
@@ -247,7 +249,7 @@ await Paved.RunAsync(async () =>
     await client.GrantUserGroupPermToRepoAsync(new("users/bar/fork-foo-repo1", "tester", RepoPerm.write));
     await client.GrantUserGroupPermToRepoAsync(new("users/bar/fork-foo-clone1", "tester", RepoPerm.write));
 
-    makeDummyCommits(baseDir.RelativeDirectory("./repos/users/bar/fork-foo-repo1"), context =>
+    makeDummyCommits(dataDir.RelativeDirectory("./repos/users/bar/fork-foo-repo1"), context =>
     {
         var author = new Author("bar", "bar@example.com");
         var commit1 = context.AddCommit("commit 4", author, new FileBlob[] { new("aaa.txt", null), new("ddd.txt", "ddd"), });
@@ -263,8 +265,8 @@ await Paved.RunAsync(async () =>
 }, o => o.AnyPause());
 
 record Author(string name, string addr);
-record FileBlob(string name, string content);
-delegate Commit Committer(string message, Author author, FileBlob[] files, Commit parent = null);
+record FileBlob(string name, string? content);
+delegate Commit Committer(string message, Author author, FileBlob[] files, Commit? parent = null);
 delegate void Tagger(string target, string name);
 delegate void Brancher(Commit target, string name);
 record RepoContext(Committer AddCommit, Brancher AddBranch, Tagger AddTag);
@@ -324,14 +326,14 @@ async Task createPullRequestAsync(Uri serviceBase, string repoPath, string apiKe
     using var context = BrowsingContext.New(config);
     var document = await context.OpenAsync(reqAddr.AbsoluteUri);
     var orgSelector = document.GetElementById("org_repo") as IHtmlSelectElement;
-    var orgRef = document.GetElementById("org_ref") as IHtmlSelectElement;
+    var orgRef = document.GetElementById("org_ref") as IHtmlSelectElement ?? throw new PavedMessageException("Unexpected");
     var otherSelector = document.GetElementById("other_repo") as IHtmlSelectElement;
-    var otherRef = document.GetElementById("other_ref") as IHtmlSelectElement;
+    var otherRef = document.GetElementById("other_ref") as IHtmlSelectElement ?? throw new PavedMessageException("Unexpected");
 
     var orgMain = orgRef.Options.First(o => o.Label == "main");
     var otherMain = otherRef.Options.First(o => o.Label == "main");
 
-    var form = document.Forms["pull_request_form"];
+    var form = document.Forms["pull_request_form"] ?? throw new PavedMessageException("Unexpected");
     form.Action += $"?api_key={apiKey}";
     var result = await form.SubmitAsync(createMissing: true, fields: new Dictionary<string, string>
     {
