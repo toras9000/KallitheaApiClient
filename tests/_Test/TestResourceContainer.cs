@@ -9,7 +9,7 @@ public class TestResourceContainer : IAsyncDisposable
         this.resources = new List<TestResource>();
         this.users = new List<UserInfo>();
         this.usergroups = new List<UserGroupInfo>();
-        this.repos = new List<RepoInfo>();
+        this.repos = new List<RepoInfoEx>();
         this.repogroups = new List<RepoGroupInfo>();
         this.gists = new List<GistInfo>();
 
@@ -24,7 +24,7 @@ public class TestResourceContainer : IAsyncDisposable
     public KallitheaClient Client { get; }
     public IReadOnlyList<UserInfo> Users { get; }
     public IReadOnlyList<UserGroupInfo> UserGroups { get; }
-    public IReadOnlyList<RepoInfo> Repos { get; }
+    public IReadOnlyList<RepoInfoEx> Repos { get; }
     public IReadOnlyList<RepoGroupInfo> RepoGroups { get; }
     public IReadOnlyList<GistInfo> Gists { get; }
 
@@ -42,7 +42,7 @@ public class TestResourceContainer : IAsyncDisposable
         return this.AddTo(usergroup);
     }
 
-    public RepoInfo ToBeDiscarded(RepoInfo repo)
+    public RepoInfoEx ToBeDiscarded(RepoInfoEx repo)
     {
         var resource = new TestResource(() => this.Client.DeleteRepoAsync(new($"{repo.repo_id}")));
         this.resources.Add(resource);
@@ -75,7 +75,7 @@ public class TestResourceContainer : IAsyncDisposable
         return usergroup;
     }
 
-    public RepoInfo AddTo(RepoInfo repo)
+    public RepoInfoEx AddTo(RepoInfoEx repo)
     {
         this.repos.Add(repo);
         return repo;
@@ -120,7 +120,7 @@ public class TestResourceContainer : IAsyncDisposable
     private List<TestResource> resources;
     private List<UserInfo> users;
     private List<UserGroupInfo> usergroups;
-    private List<RepoInfo> repos;
+    private List<RepoInfoEx> repos;
     private List<RepoGroupInfo> repogroups;
     private List<GistInfo> gists;
 }
@@ -177,7 +177,7 @@ public static partial class TestResourceContainerExtensions
         return response.result.user_group;
     }
 
-    public static async Task<RepoInfo> CreateTestRepoAsync(this TestResourceContainer self, CreateRepoArgs args)
+    public static async Task<RepoInfoEx> CreateTestRepoAsync(this TestResourceContainer self, CreateRepoArgs args)
     {
         await self.Client.CreateRepoAsync(args);
         try
@@ -192,7 +192,7 @@ public static partial class TestResourceContainerExtensions
         }
     }
 
-    public static async Task<RepoInfo> ForkTestRepoAsync(this TestResourceContainer self, ForkRepoArgs args)
+    public static async Task<RepoInfoEx> ForkTestRepoAsync(this TestResourceContainer self, ForkRepoArgs args)
     {
         await self.Client.ForkRepoAsync(args);
         try
