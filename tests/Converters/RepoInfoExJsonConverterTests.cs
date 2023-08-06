@@ -59,7 +59,7 @@ public class RepoInfoExJsonConverterTests
         repo.last_changeset.short_id.Should().Be("abc");
         repo.last_changeset.raw_id.Should().Be("abcdefghijklm");
         repo.last_changeset.revision.Should().Be(999);
-        repo.ex_fields.Should().BeEquivalentTo(new ExtraField[]
+        repo.extra_fields.Should().BeEquivalentTo(new ExtraField[]
         {
             new("testkey1", "testvalue1"),
             new("testkey2", "testvalue2"),
@@ -93,6 +93,6 @@ public class RepoInfoExJsonConverterTests
         var repo = JsonSerializer.Deserialize<RepoInfoEx>(json);
         Assert.IsNotNull(repo);
         repo.repo_id.Should().Be(345);
-        repo.ex_fields.Should().BeNull();
+        repo.extra_fields.Should().BeNull();
     }
 }
