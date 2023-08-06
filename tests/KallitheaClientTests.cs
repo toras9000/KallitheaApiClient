@@ -4,8 +4,6 @@ using KallitheaApiClientTest._Test;
 
 namespace KallitheaApiClient.Tests;
 
-// 現状、テストコードは実装過程に使った呼び出し起点程度の状態となる。
-
 
 [TestClass()]
 public class KallitheaClientTests
