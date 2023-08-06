@@ -1,6 +1,4 @@
-﻿using KallitheaApiClient;
-
-namespace KallitheaApiClient.Utils;
+﻿namespace KallitheaApiClient.Utils;
 
 /// <summary>
 /// データ部のみを取得対象とする kallithea API クライアント
@@ -13,10 +11,17 @@ public class SimpleKallitheaClient : IDisposable
     /// <param name="apiEntry">APIエントリポイント</param>
     /// <param name="apiKey">APIキー。後からの設定可能。</param>
     /// <param name="clientFactory">HttpClient生成デリゲート。IHttpClientFactory による生成を仲介することを推奨。指定しない場合は新しくインスタンスを生成する。</param>
-    /// <exception cref="ArgumentNullException"></exception>
     public SimpleKallitheaClient(Uri apiEntry, string? apiKey = null, Func<HttpClient>? clientFactory = null)
+        : this(new KallitheaClient(apiEntry, apiKey, clientFactory)) { }
+
+    /// <summary>コンストラクタ</summary>
+    /// <param name="client">
+    /// ラップするクライアントオブジェクト。
+    /// インスタンスの所有権を渡すことを意味し、このクラスのインスタンス破棄時に一緒に破棄される。
+    /// </param>
+    public SimpleKallitheaClient(KallitheaClient client)
     {
-        this.Client = new KallitheaClient(apiEntry, apiKey, clientFactory);
+        this.Client = client ?? throw new ArgumentNullException(nameof(client));
     }
     #endregion
 
