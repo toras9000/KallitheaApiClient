@@ -79,7 +79,7 @@ public class RepoInfoExJsonConverter : JsonConverter<RepoInfoEx>
             }
 
             // オブジェクトまたは配列の場合は全体をスキップ(それぞれのEndまで進む)
-            if (reader.TokenType is JsonTokenType.StartObject or JsonTokenType.StartArray) reader.Skip();
+            if (reader.TokenType is JsonTokenType.StartObject or JsonTokenType.StartArray) reader.TrySkip();
 
             // 次のプロパティに読み進める
             if (!reader.Read()) throw new JsonException();
