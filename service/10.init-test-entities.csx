@@ -2,7 +2,7 @@
 #r "nuget: Dapper, 2.0.123"
 #r "nuget: LibGit2Sharp, 0.27.2"
 #r "nuget: AngleSharp, 1.0.4"
-#r "nuget: KallitheaApiClient, 0.7.0.20"
+#r "nuget: KallitheaApiClient, 0.7.0.22"
 #r "nuget: Lestaly, 0.43.0"
 #nullable enable
 using System.Data.SQLite;
@@ -44,13 +44,14 @@ await Paved.RunAsync(async () =>
             throw new PavedMessageException("Processing is canceled because it is not in the initial state.");
         }
 
-        // Force update of admin's API key. 
+        // Force rewrite of admin's API key. 
         Console.WriteLine("Rewrite the API key for test.");
         await db.ExecuteAsync("update users set api_key = @key where username = 'admin'", new { key = apiKey, });
     }
 
     // Perform initial settings using API.
     Console.WriteLine("Set up entities for testing.");
+    Console.WriteLine("...");
     var serviceBase = new Uri("http://localhost:9999");
     using var client = new SimpleKallitheaClient(new(serviceBase, "/_admin/api"));
     client.ApiKey = apiKey;
