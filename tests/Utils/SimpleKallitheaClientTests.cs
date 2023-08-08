@@ -12,7 +12,7 @@ public class SimpleKallitheaClientTests
     [TestMethod()]
     public async Task SomeMethods()
     {
-        using var client = new SimpleKallitheaClient(new KallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client));
+        using var client = new SimpleKallitheaClient(this.ApiEntry, this.ApiKey, () => this.Client);
 
         var reponame = $"share/test-{DateTime.Now:yyyyMMdd-HHmmss}";
 

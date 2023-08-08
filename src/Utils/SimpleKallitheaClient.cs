@@ -13,16 +13,6 @@ public class SimpleKallitheaClient : IDisposable
     /// <param name="clientFactory">HttpClient生成デリゲート。IHttpClientFactory による生成を仲介することを推奨。指定しない場合は新しくインスタンスを生成する。</param>
     public SimpleKallitheaClient(Uri apiEntry, string? apiKey = null, Func<HttpClient>? clientFactory = null)
         : this(new KallitheaClient(apiEntry, apiKey, clientFactory)) { }
-
-    /// <summary>コンストラクタ</summary>
-    /// <param name="client">
-    /// ラップするクライアントオブジェクト。
-    /// インスタンスの所有権を渡すことを意味し、このクラスのインスタンス破棄時に一緒に破棄される。
-    /// </param>
-    public SimpleKallitheaClient(KallitheaClient client)
-    {
-        this.Client = client ?? throw new ArgumentNullException(nameof(client));
-    }
     #endregion
 
     // 公開プロパティ
@@ -438,6 +428,19 @@ public class SimpleKallitheaClient : IDisposable
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+    #endregion
+
+    // 構築 (保護)
+    #region コンストラクタ
+    /// <summary>コンストラクタ</summary>
+    /// <param name="client">
+    /// ラップするクライアントオブジェクト。
+    /// オブジェクトの所有権を引き渡すことを意味し、このクラスのインスタンス破棄時に一緒に破棄される。
+    /// </param>
+    protected SimpleKallitheaClient(KallitheaClient client)
+    {
+        this.Client = client ?? throw new ArgumentNullException(nameof(client));
     }
     #endregion
 
