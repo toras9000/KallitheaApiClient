@@ -70,6 +70,13 @@ await Paved.RunAsync(async () =>
     await client.CreateRepoGroupAsync(new("share"));
     await client.GrantUserGroupPermToRepoGroupAsync(new("share", "tester", RepoGroupPerm.admin));
 
+    await client.CreateRepoGroupAsync(new("many"));
+    await client.GrantUserGroupPermToRepoGroupAsync(new("share", "all", RepoGroupPerm.admin));
+    for (var i = 0; i < 50; i++)
+    {
+        await client.CreateRepoAsync(new($"many/repo{i}", owner: "admin", repo_type: RepoType.git));
+    }
+
     await client.CreateRepoGroupAsync(new("users"));
     await client.CreateRepoGroupAsync(new("foo", parent: "users", owner: "foo"));
     await client.GrantUserPermToRepoGroupAsync(new("users/foo", "foo", RepoGroupPerm.admin));
