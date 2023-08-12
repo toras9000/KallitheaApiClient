@@ -16,12 +16,11 @@ Sorry, IntelliSense messages (documentation comments) for types and members are 
 Although the Kallithea API specification may change from version to version, this library targets only a single version.  
 If the version targeted by the library does not match the server version, there is a large possibility that it will not work properly.  
 
-The package version represents the corresponding server version.  
-The first three parts of the version match the first three parts of the target Kallithea version.  
-Be aware that if the versions do not match, the API specifications may not match.  
-
-The revision value, which is the fourth part of the version, indicates the version of this library.  
-Therefore, unlike general library versioning, the difference in revision values is not necessarily a trivial change.  
+Package versions are in semantic versioning format, but are numbered according to the following arrangement.  
+The core version part represents the version of the target server.  
+The pre-release version part is used to represent the library version, not as a pre-release.  
+The first of the pre-release version numbers is changed when the library specification changes (binary incompatibility).  
+The second pre-release version number is changed for bug fixes and other cases where binary compatibility is maintained.  
 
 ## Examples
 
