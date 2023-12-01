@@ -17,6 +17,7 @@ Although the Kallithea API specification may change from version to version, thi
 If the version targeted by the library does not match the server version, there is a large possibility that it will not work properly.  
 
 Package versions are in semantic versioning format, but are numbered according to the following arrangement.  
+Always used the pre-release versioning for this package version number.  
 The core version part represents the version of the target server.  
 The pre-release version part is used to represent the library version, not as a pre-release.  
 The first of the pre-release version numbers is changed when the library specification changes (binary incompatibility).  
