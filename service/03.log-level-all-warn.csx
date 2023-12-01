@@ -1,13 +1,14 @@
 #r "nuget: System.Data.SQLite.Core, 1.0.118"
-#r "nuget: Dapper, 2.0.123"
-#r "nuget: Lestaly, 0.43.0"
+#r "nuget: Dapper, 2.1.24"
+#r "nuget: Lestaly, 0.51.0"
 #nullable enable
 using System.Data.SQLite;
 using Dapper;
 using Lestaly;
+using Lestaly.Cx;
 
-// This script is meant to run with dotnet-script (v1.4 or lator).
-// You can install .NET SDK 7.0 and install dotnet-script with the following command.
+// This script is meant to run with dotnet-script (v1.5.0 or lator).
+// You can install .NET SDK 8.0 and install dotnet-script with the following command.
 // $ dotnet tool install -g dotnet-script
 
 // In kallithea's SQLite database, rewrite admin's API key to a fixed key for debugging.
@@ -16,16 +17,25 @@ return await Paved.RunAsync(async () =>
 {
     var baseDir = ThisSource.RelativeDirectory("./docker");
     var dataDir = baseDir.RelativeDirectory("data");
+    var iniFile = dataDir.RelativeFile("./config/kallithea.ini").ThrowIfNotExists(f => new PavedMessageException("ini file not found."));
 
-    // API key to set up.
-    var apiKey = "1111222233334444555566667777888899990000";
+    // Rewrite all log levels
+    Console.WriteLine("Reqrite log levels");
+    var lines = await iniFile.ReadAllLinesAsync();
+    for (var i = 0; i < lines.Length; i++)
+    {
+        if (lines[i].IsMatch(@"^\s*level\s*=\s*\w+\s*$"))
+        {
+            lines[i] = "level = WARN";
+        }
+    }
+    await iniFile.WriteAllLinesAsync(lines);
+    Console.WriteLine("...Success");
 
-    // Force rewrite of admin's API key. 
-    Console.WriteLine("Rewrite the API key for test.");
-    var db_settings = new SQLiteConnectionStringBuilder();
-    db_settings.DataSource = dataDir.RelativeFile("./config/kallithea.db").FullName;
-    db_settings.FailIfMissing = true;
-    using var db = new SQLiteConnection(db_settings.ConnectionString);
-    await db.ExecuteAsync("update users set api_key = @key where username = 'admin'", new { key = apiKey, });
+    var composeFile = baseDir.RelativeFile("docker-compose.yml");
+    Console.WriteLine("Restart service");
+    await "docker".args("compose", "--file", composeFile.FullName, "down");
+    await "docker".args("compose", "--file", composeFile.FullName, "up", "-d");
+    Console.WriteLine("...Success");
 
 });

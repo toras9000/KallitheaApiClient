@@ -1,11 +1,13 @@
 #r "nuget: System.Data.SQLite.Core, 1.0.118"
-#r "nuget: Dapper, 2.0.123"
-#r "nuget: LibGit2Sharp, 0.27.2"
-#r "nuget: AngleSharp, 1.0.4"
-#r "nuget: KallitheaApiClient, 0.7.0.22"
-#r "nuget: Lestaly, 0.43.0"
+#r "nuget: Dapper, 2.1.24"
+#r "nuget: LibGit2Sharp, 0.28.0"
+#r "nuget: AngleSharp, 1.0.7"
+#r "nuget: KallitheaApiClient, 0.7.0-lib.22"
+#r "nuget: Lestaly, 0.51.0"
 #nullable enable
 using System.Data.SQLite;
+using System.Net.Http;
+using System.Threading;
 using AngleSharp;
 using AngleSharp.Html.Dom;
 using Dapper;
@@ -14,12 +16,18 @@ using KallitheaApiClient.Utils;
 using Lestaly;
 using LibGit2Sharp;
 
-// This script is meant to run with dotnet-script (v1.4 or lator).
-// You can install .NET SDK 7.0 and install dotnet-script with the following command.
+// This script is meant to run with dotnet-script (v1.5.0 or lator).
+// You can install .NET SDK 8.0 and install dotnet-script with the following command.
 // $ dotnet tool install -g dotnet-script
 
-await Paved.RunAsync(async () =>
+var options = new
 {
+    NoInteract = Args.Any(a => a.Trim().ToLowerInvariant() == "--no-interact"),
+};
+
+await Paved.RunAsync(config: o => { if (options.NoInteract) o.NoPause(); else o.AnyPause(); }, action: async () =>
+{
+    var serviceUri = new Uri(@"http://localhost:9999");
     var baseDir = ThisSource.RelativeDirectory("./docker");
     var dataDir = baseDir.RelativeDirectory("data");
 
@@ -49,11 +57,15 @@ await Paved.RunAsync(async () =>
         await db.ExecuteAsync("update users set api_key = @key where username = 'admin'", new { key = apiKey, });
     }
 
+    Console.WriteLine("Test accessible ...");
+    using var checkTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+    using var checker = new HttpClient();
+    while (!await checker.IsSuccessStatusAsync(serviceUri)) { await Task.Delay(1000, checkTimeout.Token); }
+
     // Perform initial settings using API.
     Console.WriteLine("Set up entities for testing.");
     Console.WriteLine("...");
-    var serviceBase = new Uri("http://localhost:9999");
-    using var client = new SimpleKallitheaClient(new(serviceBase, "/_admin/api"));
+    using var client = new SimpleKallitheaClient(new(serviceUri, "/_admin/api"));
     client.ApiKey = apiKey;
 
     await client.CreateUserAsync(new("foo", "foo@example.com", "foo", "foo", password: "foo123", extern_type: "internal"));
@@ -266,11 +278,11 @@ await Paved.RunAsync(async () =>
     });
     await client.InvalidateCacheAsync(new("users/bar/fork-foo-repo1"));
 
-    await createPullRequestAsync(serviceBase, "users/bar/fork-foo-repo1", apiKey);
+    await createPullRequestAsync(serviceUri, "users/bar/fork-foo-repo1", apiKey);
 
     Console.WriteLine("Setup completed.");
 
-}, o => o.AnyPause());
+});
 
 record Author(string name, string addr);
 record FileBlob(string name, string? content);

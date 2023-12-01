@@ -1,13 +1,13 @@
 #r "nuget: System.Data.SQLite.Core, 1.0.118"
-#r "nuget: Dapper, 2.0.123"
-#r "nuget: Lestaly, 0.43.0"
+#r "nuget: Dapper, 2.1.24"
+#r "nuget: Lestaly, 0.51.0"
 #nullable enable
 using System.Data.SQLite;
 using Dapper;
 using Lestaly;
 
-// This script is meant to run with dotnet-script (v1.4 or lator).
-// You can install .NET SDK 7.0 and install dotnet-script with the following command.
+// This script is meant to run with dotnet-script (v1.5.0 or lator).
+// You can install .NET SDK 8.0 and install dotnet-script with the following command.
 // $ dotnet tool install -g dotnet-script
 
 // In kallithea's SQLite database, rewrite admin's API key to a fixed key for debugging.
